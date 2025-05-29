@@ -1,7 +1,21 @@
-## 프로젝트
+## E-COMMERCE SERVICE 프로젝트
 
-## Getting Started
 
+## [ERD](https://dbdiagram.io/d/e-commerce-68380c69c07db17e77ae5bb5)
+<img src="./docs/erd/e-commerce.svg">
+
+## Sequence Diagram
+
+## infrastructure diagram
+
+
+
+
+
+
+
+
+<!-- 
 ### Prerequisites
 
 #### Running Docker Containers
@@ -11,3 +25,4 @@
 ```bash
 docker-compose up -d
 ```
+-->
