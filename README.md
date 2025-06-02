@@ -3,7 +3,6 @@
 
 ## [ERD](https://dbdiagram.io/d/e-commerce-68380c69c07db17e77ae5bb5)
 <img src="./docs/erd/e-commerce.svg" alt="erd">
-<!-- TODO:: coupon - now_quantity 추가 -->
 
 ## Sequence Diagram
 ### Coupon
