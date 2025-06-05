@@ -1,0 +1,9 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.hhplus.be.server.goods.repository.GoodsDao">
+
+    <!-- 존재하는 유저인지 확인 -->
+    <select id="checkUserCountByUserNo" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM users WHERE no = #{userNo}
+    </select>
+
+</mapper>

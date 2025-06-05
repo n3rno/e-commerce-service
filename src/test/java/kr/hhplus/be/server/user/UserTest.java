@@ -29,7 +29,7 @@ public class UserTest {
     @Test
     void isUserTest() {
         // given
-        final long userNo = 1;
+        final int userNo = 1;
 
         // when
         int count = userService.checkUserCountByUserNo(userNo);
