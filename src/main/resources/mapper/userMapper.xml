@@ -3,7 +3,7 @@
 
     <!-- 존재하는 유저인지 확인 -->
     <select id="checkUserCountByUserNo" parameterType="int" resultType="int">
-        SELECT COUNT(*) FROM users WHERE no = #{userNo}
+        SELECT COUNT(*) as count FROM users WHERE no = #{userNo}
     </select>
 
 </mapper>

@@ -23,7 +23,7 @@ public class UserTest {
 
     @DisplayName("등록된 사용자번호인지 확인한다.")
     @Test
-    void isUserTest() throws IllegalAccessException {
+    void isUserTest() {
         // given
         final int userNo = 1;
 

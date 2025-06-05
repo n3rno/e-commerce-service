@@ -2,12 +2,12 @@
 <mapper namespace="kr.hhplus.be.server.point.repository.PointDao">
 
     <!-- 유저의 포인트 잔액 확인 -->
-    <select id="selectBalance" parameterType="int" resultType="PointBalance">
+    <select id="selectBalance" parameterType="int" resultType="kr.hhplus.be.server.point.model.PointBalance">
         SELECT balance, user_no FROM point_hist WHERE user_no = #{userNo}
     </select>
 
     <!-- 포인트 충전(사용) 이력 데이터 삽입 -->
-    <insert id="insertPointHist" parameterType="Point">
+    <insert id="insertPointHist" parameterType="kr.hhplus.be.server.point.model.Point">
         INSERT INTO point_hist (
             type,
             amount,

@@ -15,7 +15,7 @@ public class PointController {
     private final PointService pointService;
 
     @PostMapping("/balance")
-    public ResponseEntity<PointBalance> balance(@RequestBody int userNo) throws IllegalAccessException {
+    public ResponseEntity<PointBalance> balance(@RequestParam int userNo) {
         PointBalance point = pointService.selectBalance(userNo);
         return ResponseEntity.ok(point);
     }

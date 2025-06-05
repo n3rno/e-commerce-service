@@ -16,10 +16,12 @@ public class PointService {
     private final UserService userService;
     private final PointDao pointDao;
 
-    public PointBalance selectBalance(int userNo) throws IllegalAccessException {
+    public PointBalance selectBalance(int userNo) {
         
         // 사용자 존재 여부 확인
-        userService.checkUserCountByUserNo(userNo);
+        if (0 == userService.checkUserCountByUserNo(userNo)) {
+            throw new IllegalArgumentException("Not Exist User");
+        };
 
         // 이력이 없는 경우 0원 리턴
         return pointDao.selectBalance(userNo).orElse(

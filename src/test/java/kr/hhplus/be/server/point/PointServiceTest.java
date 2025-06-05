@@ -28,7 +28,7 @@ public class PointServiceTest {
 
     @DisplayName("쿼리 조회 결과가 null인 경우, 0원을 반환한다.")
     @Test
-    void ifNullThenReturnZeroBalance() throws IllegalAccessException {
+    void ifNullThenReturnZeroBalance() {
         //given
         final int userNo = 0;
 
