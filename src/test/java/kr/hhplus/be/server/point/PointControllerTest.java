@@ -31,7 +31,7 @@ public class PointControllerTest {
         //given
         final long userNo = 1;
         final long balance = 1000;
-        final String requestParameter = "{'userNo': 1}";
+        final String requestParameter = "{'userNo': " + userNo + "}";
         PointBalance mockPoint = new PointBalance(userNo, balance);
 
         given(pointService.getBalance(userNo)).willReturn(mockPoint);
@@ -50,7 +50,7 @@ public class PointControllerTest {
     @Test
     void callControllerCharge() throws Exception {
         //given
-        final long userNo = 1L;
+        final long userNo = 1;
         final long chargePoint = 1000;
         final String requestParameter = "{'userNo': " + userNo + ", 'chargePoint': 1000}";
         PointBalance mockPoint = new PointBalance(userNo, chargePoint);
