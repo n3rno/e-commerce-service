@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.point;
 
+import kr.hhplus.be.server.point.controller.PointController;
 import kr.hhplus.be.server.point.model.PointBalance;
 import kr.hhplus.be.server.point.model.PointChargeRequestDto;
 import kr.hhplus.be.server.point.service.PointService;
@@ -11,13 +12,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PointControllerTest.class)
+@WebMvcTest(PointController.class)
 public class PointControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -29,12 +29,12 @@ public class PointControllerTest {
     @Test
     void callControllerGetBalance() throws Exception {
         //given
-        final long userNo = 1;
-        final long balance = 1000;
-        final String requestParameter = "{'userNo': " + userNo + "}";
-        PointBalance mockPoint = new PointBalance(userNo, balance);
+        final int userNo = 1;
+        final long balance = 1000L;
+        final String requestParameter = "{\"userNo\": " + userNo + "}";
+        PointBalance mockPoint = new PointBalance(balance, userNo);
 
-        given(pointService.getBalance(userNo)).willReturn(mockPoint);
+        given(pointService.selectBalance(userNo)).willReturn(mockPoint);
 
         // when & then
         mockMvc.perform(post("/point/balance")
@@ -43,20 +43,17 @@ public class PointControllerTest {
                 .andExpect(status().isOk());
 
         // verify
-        verify(pointService).getBalance(userNo);
+        verify(pointService).selectBalance(userNo);
     }
 
     @DisplayName("충전 api를 호출한다.")
     @Test
     void callControllerCharge() throws Exception {
         //given
-        final long userNo = 1;
+        final int userNo = 1;
         final long chargePoint = 1000;
-        final String requestParameter = "{'userNo': " + userNo + ", 'chargePoint': 1000}";
-        PointBalance mockPoint = new PointBalance(userNo, chargePoint);
+        final String requestParameter = "{\"userNo\": " + userNo + ", \"chargePoint\": 1000}";
         PointChargeRequestDto request = new PointChargeRequestDto(chargePoint, userNo);
-
-        given(pointService.charge(request)).willReturn(mockPoint);
 
         // when & then
         mockMvc.perform(post("/point/charge")

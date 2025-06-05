@@ -1,0 +1,28 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.hhplus.be.server.point.repository.PointDao">
+
+    <!-- 유저의 포인트 잔액 확인 -->
+    <select id="selectBalance" parameterType="int" resultType="PointBalance">
+        SELECT balance, user_no FROM point_hist WHERE user_no = #{userNo}
+    </select>
+
+    <!-- 포인트 충전(사용) 이력 데이터 삽입 -->
+    <insert id="insertPointHist" parameterType="Point">
+        INSERT INTO point_hist (
+            type,
+            amount,
+            order_id,
+            balance,
+            user_no,
+            created_at
+        ) VALUES (
+            #{type},
+            #{amount},
+            #{orderId},
+            (SELECT balance - #{amount} FROM point_hist WHERE user_no = #{userNo}),
+            #{userNo},
+            NOW()
+        )
+    </insert>
+
+</mapper>

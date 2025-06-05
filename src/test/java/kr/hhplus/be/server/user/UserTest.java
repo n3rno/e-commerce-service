@@ -1,24 +1,20 @@
 package kr.hhplus.be.server.user;
 
+import kr.hhplus.be.server.user.repository.UserDao;
 import kr.hhplus.be.server.user.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.hibernate.service.spi.InjectService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
-import java.util.Optional;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@RequiredArgsConstructor
+@ExtendWith(MockitoExtension.class)
 public class UserTest {
 
-    @InjectMocks //
+    @InjectMocks
     private UserService userService;
 
     @Mock
@@ -27,7 +23,7 @@ public class UserTest {
 
     @DisplayName("등록된 사용자번호인지 확인한다.")
     @Test
-    void isUserTest() {
+    void isUserTest() throws IllegalAccessException {
         // given
         final int userNo = 1;
 
@@ -36,8 +32,6 @@ public class UserTest {
 
         // then
         assertThat(count).isEqualTo(1);
-
-
 
     }
 }

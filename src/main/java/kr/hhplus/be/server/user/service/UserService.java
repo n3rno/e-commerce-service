@@ -10,7 +10,12 @@ public class UserService {
 
     private final UserDao userDao;
 
-    public int checkUserCountByUserNo(int userNo) {
-        return userDao.checkUserCountByUserNo(userNo);
+    public int checkUserCountByUserNo(int userNo) throws IllegalAccessException {
+        // 사용자 존재 여부 확인
+        int count = userDao.checkUserCountByUserNo(userNo);
+        if (count == 0) {
+            throw new IllegalAccessException();
+        }
+        return count;
     }
 }
