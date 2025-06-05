@@ -3,7 +3,7 @@
 
     <!-- 유저의 포인트 잔액 확인 -->
     <select id="selectBalance" parameterType="int" resultType="kr.hhplus.be.server.point.model.PointBalance">
-        SELECT balance, user_no FROM point_hist WHERE user_no = #{userNo}
+        SELECT balance, user_no FROM point_hist WHERE user_no = #{userNo} ORDER BY CREATED_AT DESC LIMIT 1
     </select>
 
     <!-- 포인트 충전(사용) 이력 데이터 삽입 -->
@@ -19,7 +19,7 @@
             #{type},
             #{amount},
             #{orderId},
-            (SELECT balance - #{amount} FROM point_hist WHERE user_no = #{userNo}),
+            #{balance},
             #{userNo},
             NOW()
         )

@@ -32,9 +32,13 @@ public class PointService {
 
     public void charge(PointChargeRequestDto request) {
 
+        // 잔액 조회
+        PointBalance balance = selectBalance(request.getUserNo());
+
         Point point = Point.builder()
                 .type(PointType.CHARGE)
                 .amount(request.getAmount())
+                .balance(balance.getBalance() + request.getAmount())
                 .userNo(request.getUserNo())
         .build();
 

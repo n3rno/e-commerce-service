@@ -25,6 +25,6 @@ public class PointController {
     public ResponseEntity charge(PointChargeRequestDto requestDto) {
         pointService.charge(requestDto);
 
-        return (ResponseEntity) ResponseEntity.ok();
+        return ResponseEntity.ok(null);
     }
 }
