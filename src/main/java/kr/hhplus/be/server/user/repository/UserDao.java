@@ -5,5 +5,5 @@ import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface UserDao {
-    int checkUserCountByUserNo(@Param("userNo") int userNo);// 이거였나
+    int checkUserCountByUserNo(@Param("userNo") int userNo);
 }

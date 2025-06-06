@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
-@Builder
+//@Builder
 public class OrderGoods {
     int orderGoodsNo;
     String orderId;

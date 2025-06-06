@@ -15,9 +15,6 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 public class SelectGoodsTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
     @InjectMocks
     private DefaultGoodsService goodsService;
 
