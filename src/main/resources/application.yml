@@ -5,6 +5,9 @@ spring:
     active: local
   datasource:
     name: HangHaePlusDataSource
+    url: jdbc:mysql://localhost:3306/ecommerce?characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: coffee
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       maximum-pool-size: 3
@@ -21,11 +24,11 @@ spring:
       hibernate.timezone.default_storage: NORMALIZE_UTC
       hibernate.jdbc.time_zone: UTC
 
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: kr.hhplus.be.server.*.model
+  configuration:
+    map-underscore-to-camel-case: true
+
 ---
 spring.config.activate.on-profile: local, test
-
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/hhplus?characterEncoding=UTF-8&serverTimezone=UTC
-    username: application
-    password: application
