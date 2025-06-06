@@ -1,0 +1,53 @@
+package kr.hhplus.be.server.order;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.hhplus.be.server.order.controller.OrderController;
+import kr.hhplus.be.server.order.model.OrderRequestDto;
+import kr.hhplus.be.server.order.service.OrderService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(OrderController.class)
+public class OrderControllerTest {
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private OrderService orderService;
+
+    @DisplayName("주문 api를 호출한다.")
+    @Test
+    void callController() throws Exception {
+        //given
+        final int userNo = 1;
+        OrderRequestDto.OrderGoods goods1 = new OrderRequestDto.OrderGoods(1, 5);
+        List<OrderRequestDto.OrderGoods> orderGoodsList = new ArrayList<OrderRequestDto.OrderGoods>();
+        orderGoodsList.add(goods1);
+
+        OrderRequestDto requestDto = new OrderRequestDto(userNo, orderGoodsList);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(requestDto);
+
+        // when & then
+        mockMvc.perform(post("/order/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk());
+
+        // verify
+        verify(orderService).order(requestDto);
+    }
+}
