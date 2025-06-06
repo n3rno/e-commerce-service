@@ -49,6 +49,9 @@ dependencies {
 	testImplementation("org.testcontainers:junit-jupiter")
 	testImplementation("org.testcontainers:mysql")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+	implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
+
 }
 
 tasks.withType<Test> {
