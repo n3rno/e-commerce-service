@@ -44,7 +44,27 @@ public class PointService {
 
         // 포인트 충전 이력 생성
         pointDao.insertPointHist(point);
+    }
 
+    public void use(PointChargeRequestDto request) {
+
+        // 잔액 조회
+        PointBalance balance = selectBalance(request.getUserNo());
+
+        // 잔액이 부족하면 차감 불가
+        if (balance.getBalance() < request.getAmount()) {
+            throw new IllegalArgumentException("Not Enough Balance");
+        }
+
+        Point point = Point.builder()
+                .type(PointType.USE)
+                .amount(request.getAmount())
+                .balance(balance.getBalance() - request.getAmount())
+                .userNo(request.getUserNo())
+                .build();
+
+        // 포인트 차감 이력 생성
+        pointDao.insertPointHist(point);
     }
 
 }

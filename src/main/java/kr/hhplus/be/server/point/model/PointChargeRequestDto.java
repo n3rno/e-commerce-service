@@ -1,9 +1,11 @@
 package kr.hhplus.be.server.point.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 @AllArgsConstructor
 public class PointChargeRequestDto {
     long amount;        // 충전금액
