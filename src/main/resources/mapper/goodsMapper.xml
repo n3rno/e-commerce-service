@@ -22,12 +22,13 @@
         FROM goods
     </sql>
 
-    <select id="getGoodsByGoodsNo" parameterType="long" resultType="GoodsResponseDto">
+    <select id="getGoodsByGoodsNo" parameterType="long" resultType="kr.hhplus.be.server.goods.model.GoodsResponseDto">
             <include refid="getGoodsInfo"/>
             <where>
                 no = #{goodsNo}
             </where>
     </select>
+    
     <select id="getGoodsByGoodsList" resultType="kr.hhplus.be.server.goods.model.GoodsResponseDto">
         <include refid="getGoodsInfo"/>
         <where>
