@@ -1,15 +1,14 @@
 package kr.hhplus.be.server.order;
 
-import kr.hhplus.be.server.goods.model.GoodsResponseDto;
-import kr.hhplus.be.server.goods.service.GoodsService;
-import kr.hhplus.be.server.order.model.Order;
-import kr.hhplus.be.server.order.model.OrderGoods;
-import kr.hhplus.be.server.order.model.OrderRequestDto;
-import kr.hhplus.be.server.order.repository.OrderDao;
-import kr.hhplus.be.server.order.service.FakeOrderEventDataSender;
-import kr.hhplus.be.server.point.model.PointBalance;
-import kr.hhplus.be.server.point.model.PointChargeRequestDto;
-import kr.hhplus.be.server.point.service.PointService;
+import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
+import kr.hhplus.be.server.order.domain.model.Order;
+import kr.hhplus.be.server.order.domain.model.OrderGoods;
+import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
+import kr.hhplus.be.server.order.infrastructure.persistence.mapper.OrderMapper;
+import kr.hhplus.be.server.order.infrastructure.messaging.MockMessageProducer;
+import kr.hhplus.be.server.point.domain.model.PointBalance;
+import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
+import kr.hhplus.be.server.point.application.service.PointService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -29,13 +28,13 @@ public class OrderServiceTest {
     private GoodsService goodsService;
 
     @Autowired
-    private OrderDao orderDao;
+    private OrderMapper orderMapper;
 
     @Autowired
     private PointService pointService;
 
     @Mock
-    private FakeOrderEventDataSender fakeOrderEventDataSender;
+    private MockMessageProducer mockMessageProducer;
 
     @DisplayName("존재하지 않는 사용자는 잔액을 0원 반환한다.")
     @Test
@@ -85,8 +84,8 @@ public class OrderServiceTest {
         // then
         assertThatCode(()-> {
             // 주문 이력 생성
-            orderDao.insertOrder(order);
-            orderDao.insertOrderGoods(OrderGoods.from(orderId, orderGoodsList));
+            orderMapper.insertOrder(order);
+            orderMapper.insertOrderGoods(OrderGoods.from(orderId, orderGoodsList));
         }).doesNotThrowAnyException();
     }
 
@@ -124,7 +123,7 @@ public class OrderServiceTest {
                 .totalOrderAmount(1500).build();
 
         // when then
-        fakeOrderEventDataSender.send(order);
+        mockMessageProducer.send(order);
     }
 
 

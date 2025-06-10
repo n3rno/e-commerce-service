@@ -1,8 +1,7 @@
 package kr.hhplus.be.server.goods;
 
 import kr.hhplus.be.server.goods.controller.GoodsController;
-import kr.hhplus.be.server.goods.model.GoodsResponseDto;
-import kr.hhplus.be.server.goods.service.GoodsService;
+import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,5 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="kr.hhplus.be.server.goods.repository.GoodsDao">
+<mapper namespace="kr.hhplus.be.server.goods.infrastructure.persistence.mapper.GoodsMapper">
 
     <!-- 상품 정보 조회 (남은 재고 포함) -->
     <sql id="getGoodsInfo">
@@ -22,14 +22,14 @@
         FROM goods
     </sql>
 
-    <select id="getGoodsByGoodsNo" parameterType="long" resultType="kr.hhplus.be.server.goods.model.GoodsResponseDto">
+    <select id="selectGoodsByGoodsNo" parameterType="long" resultType="kr.hhplus.be.server.goods.domain.model.GoodsResponseDto">
             <include refid="getGoodsInfo"/>
             <where>
                 no = #{goodsNo}
             </where>
     </select>
     
-    <select id="getGoodsByGoodsList" resultType="kr.hhplus.be.server.goods.model.GoodsResponseDto">
+    <select id="selectGoodsByGoodsList" resultType="kr.hhplus.be.server.goods.domain.model.GoodsResponseDto">
         <include refid="getGoodsInfo"/>
         <where>
             no in

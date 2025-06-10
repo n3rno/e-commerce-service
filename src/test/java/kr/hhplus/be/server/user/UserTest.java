@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.user;
 
-import kr.hhplus.be.server.user.repository.UserDao;
-import kr.hhplus.be.server.user.service.UserService;
+import kr.hhplus.be.server.user.infrastructure.persistence.mapper.UserMapper;
+import kr.hhplus.be.server.user.application.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +18,7 @@ public class UserTest {
     private UserService userService;
 
     @Mock
-    private UserDao userDao;
+    private UserMapper userDao;
 
 
     @DisplayName("등록된 사용자번호인지 확인한다.")

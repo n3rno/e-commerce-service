@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.point;
 
-import kr.hhplus.be.server.point.model.PointBalance;
-import kr.hhplus.be.server.point.repository.PointDao;
-import kr.hhplus.be.server.point.service.PointService;
-import kr.hhplus.be.server.user.service.UserService;
+import kr.hhplus.be.server.point.domain.model.PointBalance;
+import kr.hhplus.be.server.point.infrastructure.persistence.PointMapper;
+import kr.hhplus.be.server.point.application.service.PointService;
+import kr.hhplus.be.server.user.application.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +21,7 @@ public class PointServiceTest {
     private PointService pointService;
 
     @Mock
-    private PointDao pointDao;
+    private PointMapper pointMapper;
 
     @Mock
     private UserService userService;

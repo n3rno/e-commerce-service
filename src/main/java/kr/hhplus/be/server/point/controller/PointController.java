@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.point.controller;
 
-import kr.hhplus.be.server.point.model.PointBalance;
-import kr.hhplus.be.server.point.model.PointChargeRequestDto;
-import kr.hhplus.be.server.point.service.PointService;
+import kr.hhplus.be.server.point.domain.model.PointBalance;
+import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
+import kr.hhplus.be.server.point.application.service.PointService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

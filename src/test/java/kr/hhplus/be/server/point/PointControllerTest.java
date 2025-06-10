@@ -1,9 +1,9 @@
 package kr.hhplus.be.server.point;
 
 import kr.hhplus.be.server.point.controller.PointController;
-import kr.hhplus.be.server.point.model.PointBalance;
-import kr.hhplus.be.server.point.model.PointChargeRequestDto;
-import kr.hhplus.be.server.point.service.PointService;
+import kr.hhplus.be.server.point.domain.model.PointBalance;
+import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
+import kr.hhplus.be.server.point.application.service.PointService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="kr.hhplus.be.server.order.repository.OrderDao">
+<mapper namespace="kr.hhplus.be.server.order.infrastructure.persistence.mapper.OrderMapper">
 
-    <insert id="insertOrder" parameterType="Order">
+    <insert id="insertOrder" parameterType="kr.hhplus.be.server.order.domain.model.Order">
         INSERT INTO order (
             id,
             user_no,
