@@ -4,7 +4,7 @@ spring:
   profiles:
     active: local
   datasource:
-    name: HangHaePlusDataSource
+#    name: HangHaePlusDataSource
     url: jdbc:mysql://localhost:3306/ecommerce?characterEncoding=UTF-8&serverTimezone=UTC
     username: root
     password: coffee

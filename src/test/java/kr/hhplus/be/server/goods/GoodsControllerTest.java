@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.goods;
 
+import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.controller.GoodsController;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +34,7 @@ public class GoodsControllerTest {
         final long goodsNo = 1L;
         GoodsResponseDto mockGoods = new GoodsResponseDto(goodsNo, "커피", 3000, 50, 50);
 
-        given(goodsService.selectGoods(anyLong())).willReturn(mockGoods);
+        given(goodsService.getGoodsByGoodsNo(anyLong())).willReturn(mockGoods);
 
         // when & then
         mockMvc.perform(get("/goods/get/1"))
@@ -41,7 +42,7 @@ public class GoodsControllerTest {
                 .andExpect(jsonPath("$.no").value(goodsNo));
 
         // verify
-        verify(goodsService).selectGoods(goodsNo);
+        verify(goodsService).getGoodsByGoodsNo(goodsNo);
     }
 
 }

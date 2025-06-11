@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.point;
 
 import kr.hhplus.be.server.point.domain.model.PointBalance;
-import kr.hhplus.be.server.point.infrastructure.persistence.PointMapper;
+import kr.hhplus.be.server.point.infrastructure.persistence.mapper.PointMapper;
 import kr.hhplus.be.server.point.application.service.PointService;
 import kr.hhplus.be.server.user.application.service.UserService;
 import org.junit.jupiter.api.DisplayName;

@@ -1,14 +1,17 @@
 package kr.hhplus.be.server.order;
 
+import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
+import kr.hhplus.be.server.goods.domain.repository.GoodsRepository;
+import kr.hhplus.be.server.goods.infrastructure.persistence.mapper.GoodsMapper;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderGoods;
 import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
 import kr.hhplus.be.server.order.infrastructure.persistence.mapper.OrderMapper;
 import kr.hhplus.be.server.order.infrastructure.messaging.MockMessageProducer;
-import kr.hhplus.be.server.point.domain.model.PointBalance;
 import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -18,14 +21,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 public class OrderServiceTest {
 
     @Autowired
     private GoodsService goodsService;
+
+    @Autowired
+    private GoodsRepository goodsRepository;
+
+    @Autowired
+    private GoodsMapper goodsMapper;
 
     @Autowired
     private OrderMapper orderMapper;
@@ -36,17 +44,14 @@ public class OrderServiceTest {
     @Mock
     private MockMessageProducer mockMessageProducer;
 
-    @DisplayName("존재하지 않는 사용자는 잔액을 0원 반환한다.")
+    @DisplayName("존재하지 않는 사용자는 Exception을 발생시킨다.")
     @Test
     void ifNullThenReturnZeroBalance() {
         //given
         final int userNo = 0;
 
-        //when
-        PointBalance balance = pointService.selectBalance(userNo);
-
-        //then
-        assertThat(balance.getBalance()).isEqualTo(0);
+        //when then
+        assertThatThrownBy(() -> pointService.selectBalance(userNo));
     }
 
     @DisplayName("상품 금액과 총 재고, 남은 재고를 조회한다.")
@@ -67,9 +72,11 @@ public class OrderServiceTest {
     }
 
     @DisplayName("주문 이력을 생성한다.")
+    @Test
+    @Disabled
     void addOrderHistory() {
         // given
-        OrderRequestDto.OrderGoods goods1 = new OrderRequestDto.OrderGoods(1, 5);
+        OrderRequestDto.OrderGoods goods1 = new OrderRequestDto.OrderGoods(3, 5);
         List<OrderRequestDto.OrderGoods> orderGoodsList = new ArrayList<OrderRequestDto.OrderGoods>();
         orderGoodsList.add(goods1);
         String orderId = "E202506062020000";
@@ -90,6 +97,7 @@ public class OrderServiceTest {
     }
 
     @DisplayName("잔액을 차감한다(결제).")
+    @Test
     void usePoint() {
         //given
         PointChargeRequestDto pointUseDto = PointChargeRequestDto.builder()
@@ -102,6 +110,7 @@ public class OrderServiceTest {
     }
 
     @DisplayName("잔액이 부족한 경우 차감할 수 없다.")
+    @Test
     void cannotUsePoint() {
         //given
         PointChargeRequestDto pointUseDto = PointChargeRequestDto.builder()
@@ -114,6 +123,7 @@ public class OrderServiceTest {
     }
 
     @DisplayName("주문 정보를 데이터플랫폼에 전송한다.")
+    @Test
     void sendOrderInfoToDataAnalytics() {
         // given
         Order order = Order.builder()
@@ -125,8 +135,5 @@ public class OrderServiceTest {
         // when then
         mockMessageProducer.send(order);
     }
-
-
-
 
 }

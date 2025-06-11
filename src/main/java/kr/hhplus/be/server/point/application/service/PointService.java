@@ -5,7 +5,6 @@ import kr.hhplus.be.server.point.domain.model.Point;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
 import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
 import kr.hhplus.be.server.point.domain.repository.PointRepository;
-import kr.hhplus.be.server.point.infrastructure.persistence.PointMapper;
 import kr.hhplus.be.server.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -29,10 +29,10 @@ public class SelectGoodsTest {
         final long goodsNo = 1L;
 
         // when
-        goodsService.selectGoods(goodsNo);
+        goodsService.getGoodsByGoodsNo(goodsNo);
 
         // then
-        verify(goodsMapper).getGoodsByGoodsNo(goodsNo);
+        verify(goodsMapper).selectGoodsByGoodsNo(goodsNo);
 
     }
 }

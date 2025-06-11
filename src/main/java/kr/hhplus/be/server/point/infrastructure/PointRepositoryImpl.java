@@ -3,7 +3,7 @@ package kr.hhplus.be.server.point.infrastructure;
 import kr.hhplus.be.server.point.domain.model.Point;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
 import kr.hhplus.be.server.point.domain.repository.PointRepository;
-import kr.hhplus.be.server.point.infrastructure.persistence.PointMapper;
+import kr.hhplus.be.server.point.infrastructure.persistence.mapper.PointMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +13,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PointRepositoryImpl implements PointRepository {
 
-    PointMapper pointMapper;
+    private final PointMapper pointMapper;
 
     @Override
     public Optional<PointBalance> selectBalanceByUserNo(int userNo) {

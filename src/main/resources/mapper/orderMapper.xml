@@ -2,7 +2,7 @@
 <mapper namespace="kr.hhplus.be.server.order.infrastructure.persistence.mapper.OrderMapper">
 
     <insert id="insertOrder" parameterType="kr.hhplus.be.server.order.domain.model.Order">
-        INSERT INTO order (
+        INSERT INTO `order` (
             id,
             user_no,
             total_order_amount,
@@ -13,7 +13,7 @@
             #{userNo},
             #{totalOrderAmount},
             #{couponIssueNo},
-            NOW(),
+            NOW()
         )
     </insert>
 

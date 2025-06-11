@@ -28,7 +28,7 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final PointService pointService;
     private final GoodsService goodsService;
-    private final MessageProducer messageProducer;
+    private final MockMessageProducer messageProducer;
 
     @Transactional
     public void order(OrderRequestDto orderRequestDto) {

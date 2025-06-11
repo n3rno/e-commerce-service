@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.point.infrastructure.persistence;
+package kr.hhplus.be.server.point.infrastructure.persistence.mapper;
 
 import kr.hhplus.be.server.point.domain.model.Point;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
