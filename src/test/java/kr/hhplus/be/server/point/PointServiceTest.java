@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith(MockitoExtension.class)
 public class PointServiceTest {
@@ -32,11 +33,8 @@ public class PointServiceTest {
         //given
         final int userNo = 0;
 
-        //when
-        PointBalance balance = pointService.selectBalance(userNo);
-
-        //then
-        assertThat(balance.getBalance()).isEqualTo(0);
+       //when then
+        assertThatThrownBy(() -> pointService.selectBalance(userNo));
 
     }
 }

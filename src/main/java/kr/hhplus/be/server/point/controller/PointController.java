@@ -22,7 +22,7 @@ public class PointController {
 
     // TODO 잔액을 return 한다.
     @PostMapping("/charge")
-    public ResponseEntity charge(PointChargeRequestDto requestDto) {
+    public ResponseEntity charge(@RequestBody PointChargeRequestDto requestDto) {
         pointService.charge(requestDto);
 
         return ResponseEntity.ok(null);

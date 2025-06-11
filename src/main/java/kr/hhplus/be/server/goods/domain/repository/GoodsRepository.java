@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface GoodsRepository {
 
-    GoodsResponseDto getGoods(long goodsNo);
+    GoodsResponseDto getGoodsByGoodsNo(long goodsNo);
 
     List<GoodsResponseDto> getGoodsStockInfo(List<OrderRequestDto.OrderGoods> goodsList);
 }

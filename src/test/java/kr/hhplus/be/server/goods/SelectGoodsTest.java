@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.goods;
 
+import kr.hhplus.be.server.goods.domain.repository.GoodsRepository;
 import kr.hhplus.be.server.goods.infrastructure.persistence.mapper.GoodsMapper;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +19,9 @@ public class SelectGoodsTest {
     private GoodsService goodsService;
 
     @Mock
+    private GoodsRepository goodsRepository;
+
+    @Mock
     private GoodsMapper goodsMapper;
 
 
@@ -32,7 +36,7 @@ public class SelectGoodsTest {
         goodsService.getGoodsByGoodsNo(goodsNo);
 
         // then
-        verify(goodsMapper).selectGoodsByGoodsNo(goodsNo);
+        verify(goodsRepository).getGoodsByGoodsNo(goodsNo);
 
     }
 }

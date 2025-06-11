@@ -15,7 +15,7 @@ public class GoodsRepositoryImpl implements GoodsRepository {
     private final GoodsMapper goodsMapper;
 
     @Override
-    public GoodsResponseDto getGoods(long goodsNo) {
+    public GoodsResponseDto getGoodsByGoodsNo(long goodsNo) {
         return goodsMapper.selectGoodsByGoodsNo(goodsNo);
     }
 

@@ -15,7 +15,7 @@ public class GoodsService {
     private final GoodsRepository goodsRepository;
 
     public GoodsResponseDto getGoodsByGoodsNo(long goodsNo) {
-        return goodsRepository.getGoods(goodsNo);
+        return goodsRepository.getGoodsByGoodsNo(goodsNo);
     }
 
     public List<GoodsResponseDto> getGoodsStockInfo(List<OrderRequestDto.OrderGoods> goodsList) {
