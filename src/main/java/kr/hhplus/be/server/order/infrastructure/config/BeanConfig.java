@@ -1,7 +1,9 @@
 package kr.hhplus.be.server.order.infrastructure.config;
 
+import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.infrastructure.messaging.MockMessageProducer;
 import kr.hhplus.be.server.order.infrastructure.messaging.MessageProducer;
+import kr.hhplus.be.server.order.infrastructure.messaging.OutboxMessageProducer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -15,10 +17,9 @@ public class BeanConfig {
         return new MockMessageProducer();
     }
 
-    // TODO
-//    @Bean
-//    @Profile("prod")
-//    public MessageProducer prodMessageProducer(OutboxRepository outboxRepository) {
-//        return new OutboxMessageProducer(outboxRepository);
-//    }
+    @Bean
+    @Profile("prod")
+    public MessageProducer prodMessageProducer() {
+        return new OutboxMessageProducer();
+    }
 }

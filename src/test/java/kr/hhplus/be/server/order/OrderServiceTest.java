@@ -2,27 +2,28 @@ package kr.hhplus.be.server.order;
 
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
-import kr.hhplus.be.server.goods.domain.repository.GoodsRepository;
-import kr.hhplus.be.server.goods.infrastructure.persistence.mapper.GoodsMapper;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderGoods;
 import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
-import kr.hhplus.be.server.order.infrastructure.persistence.mapper.OrderMapper;
-import kr.hhplus.be.server.order.infrastructure.messaging.MockMessageProducer;
+import kr.hhplus.be.server.order.domain.repository.OrderRepository;
+import kr.hhplus.be.server.order.infrastructure.messaging.MessageProducer;
 import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
+@ActiveProfiles("test")
 @SpringBootTest
 public class OrderServiceTest {
 
@@ -30,19 +31,13 @@ public class OrderServiceTest {
     private GoodsService goodsService;
 
     @Autowired
-    private GoodsRepository goodsRepository;
-
-    @Autowired
-    private GoodsMapper goodsMapper;
-
-    @Autowired
-    private OrderMapper orderMapper;
+    private OrderRepository orderRepository;
 
     @Autowired
     private PointService pointService;
 
-    @Mock
-    private MockMessageProducer mockMessageProducer;
+    @MockitoBean
+    private MessageProducer mockMessageProducer;
 
     @DisplayName("존재하지 않는 사용자는 Exception을 발생시킨다.")
     @Test
@@ -91,8 +86,8 @@ public class OrderServiceTest {
         // then
         assertThatCode(()-> {
             // 주문 이력 생성
-            orderMapper.insertOrder(order);
-            orderMapper.insertOrderGoods(OrderGoods.from(orderId, orderGoodsList));
+            orderRepository.insertOrder(order);
+            orderRepository.insertOrderGoods(OrderGoods.from(orderId, orderGoodsList));
         }).doesNotThrowAnyException();
     }
 
