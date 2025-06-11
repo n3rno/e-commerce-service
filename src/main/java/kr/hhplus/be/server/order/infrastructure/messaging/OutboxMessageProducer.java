@@ -4,12 +4,12 @@ import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OutboxEvent;
 import kr.hhplus.be.server.order.infrastructure.persistence.mapper.OutboxEventMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@RequiredArgsConstructor
 public class OutboxMessageProducer implements MessageProducer {
 
-    private final OutboxEventMapper outboxEventMapper;
+    @Autowired
+    OutboxEventMapper outboxEventMapper;
 
     @Override
     public int send(Order order) {
