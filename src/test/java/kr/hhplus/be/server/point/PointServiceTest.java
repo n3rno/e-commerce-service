@@ -17,7 +17,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @ExtendWith(MockitoExtension.class)
 public class PointServiceTest {
 
-    // TODO 맞는지 확인
     @InjectMocks
     private PointService pointService;
 
@@ -35,6 +34,7 @@ public class PointServiceTest {
 
        //when then
         assertThatThrownBy(() -> pointService.selectBalance(userNo));
-
     }
+
+
 }
