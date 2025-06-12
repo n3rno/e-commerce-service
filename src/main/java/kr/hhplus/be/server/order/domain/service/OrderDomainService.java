@@ -5,6 +5,7 @@ import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Optional;
 @Component
 public class OrderDomainService {
 
+    @Autowired
     private GoodsService goodsService;
 
     public ValidationResult validate(OrderRequestDto orderRequestDto) {

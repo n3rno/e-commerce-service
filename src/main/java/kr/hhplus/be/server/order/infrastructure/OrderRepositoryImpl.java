@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderRepositoryImpl implements OrderRepository {
 
-    OrderMapper orderMapper;
+    private final OrderMapper orderMapper;
 
     @Override
     public void insertOrder(Order order) {
