@@ -52,8 +52,6 @@ public class OrderService {
                 .amount(validation.getTotalPrice()).build());
 
         // 주문 데이터 외부 전송
-        int outboxEventSeq = messageProducer.send(order);
-        // 주문 데이터 외부 전송 완료 처리
-        messageProducer.completed(outboxEventSeq);
+        messageProducer.send(order);
     }
 }

@@ -128,8 +128,7 @@ public class OrderServiceTest {
                 .totalOrderAmount(1500).build();
 
         // when then
-        int seq = mockMessageProducer.send(order);
-        mockMessageProducer.completed(seq);
+        mockMessageProducer.send(order);
     }
 
 }

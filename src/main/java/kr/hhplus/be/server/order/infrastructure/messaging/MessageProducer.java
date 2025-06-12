@@ -3,6 +3,5 @@ package kr.hhplus.be.server.order.infrastructure.messaging;
 import kr.hhplus.be.server.order.domain.model.Order;
 
 public interface MessageProducer {
-    int send(Order order);
-    void completed(int seq);
+    void send(Order order);
 }
