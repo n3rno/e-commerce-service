@@ -51,6 +51,7 @@ dependencies {
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
 	implementation("com.fasterxml.jackson.core:jackson-databind:2.17.0")
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
 }
 

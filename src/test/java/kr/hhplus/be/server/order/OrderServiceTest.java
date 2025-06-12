@@ -1,27 +1,29 @@
 package kr.hhplus.be.server.order;
 
-import kr.hhplus.be.server.goods.model.GoodsResponseDto;
-import kr.hhplus.be.server.goods.service.GoodsService;
-import kr.hhplus.be.server.order.model.Order;
-import kr.hhplus.be.server.order.model.OrderGoods;
-import kr.hhplus.be.server.order.model.OrderRequestDto;
-import kr.hhplus.be.server.order.repository.OrderDao;
-import kr.hhplus.be.server.order.service.FakeOrderEventDataSender;
-import kr.hhplus.be.server.point.model.PointBalance;
-import kr.hhplus.be.server.point.model.PointChargeRequestDto;
-import kr.hhplus.be.server.point.service.PointService;
+import kr.hhplus.be.server.goods.application.service.GoodsService;
+import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
+import kr.hhplus.be.server.order.domain.model.Order;
+import kr.hhplus.be.server.order.domain.model.OrderGoods;
+import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
+import kr.hhplus.be.server.order.domain.repository.OrderRepository;
+import kr.hhplus.be.server.order.infrastructure.messaging.MessageProducer;
+import kr.hhplus.be.server.point.domain.model.PointRequestDto;
+import kr.hhplus.be.server.point.application.service.PointService;
+import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.*;
 
+@ActiveProfiles("test")
 @SpringBootTest
 public class OrderServiceTest {
 
@@ -29,25 +31,22 @@ public class OrderServiceTest {
     private GoodsService goodsService;
 
     @Autowired
-    private OrderDao orderDao;
+    private OrderRepository orderRepository;
 
     @Autowired
     private PointService pointService;
 
-    @Mock
-    private FakeOrderEventDataSender fakeOrderEventDataSender;
+    @MockitoBean
+    private MessageProducer mockMessageProducer;
 
-    @DisplayName("존재하지 않는 사용자는 잔액을 0원 반환한다.")
+    @DisplayName("존재하지 않는 사용자는 Exception을 발생시킨다.")
     @Test
     void ifNullThenReturnZeroBalance() {
         //given
         final int userNo = 0;
 
-        //when
-        PointBalance balance = pointService.selectBalance(userNo);
-
-        //then
-        assertThat(balance.getBalance()).isEqualTo(0);
+        //when then
+        assertThatThrownBy(() -> pointService.selectBalance(userNo));
     }
 
     @DisplayName("상품 금액과 총 재고, 남은 재고를 조회한다.")
@@ -68,9 +67,11 @@ public class OrderServiceTest {
     }
 
     @DisplayName("주문 이력을 생성한다.")
+    @Test
+    @Disabled
     void addOrderHistory() {
         // given
-        OrderRequestDto.OrderGoods goods1 = new OrderRequestDto.OrderGoods(1, 5);
+        OrderRequestDto.OrderGoods goods1 = new OrderRequestDto.OrderGoods(3, 5);
         List<OrderRequestDto.OrderGoods> orderGoodsList = new ArrayList<OrderRequestDto.OrderGoods>();
         orderGoodsList.add(goods1);
         String orderId = "E202506062020000";
@@ -85,36 +86,39 @@ public class OrderServiceTest {
         // then
         assertThatCode(()-> {
             // 주문 이력 생성
-            orderDao.insertOrder(order);
-            orderDao.insertOrderGoods(OrderGoods.from(orderId, orderGoodsList));
+            orderRepository.insertOrder(order);
+            orderRepository.insertOrderGoods(OrderGoods.from(orderId, orderGoodsList));
         }).doesNotThrowAnyException();
     }
 
     @DisplayName("잔액을 차감한다(결제).")
+    @Test
     void usePoint() {
         //given
-        PointChargeRequestDto pointUseDto = PointChargeRequestDto.builder()
+        PointRequestDto pointUseDto = PointRequestDto.builder()
                         .userNo(1)
                         .amount(0)
                         .build();
         // when
         // then
-        assertThatCode(() -> pointService.use(pointUseDto)).doesNotThrowAnyException();
+        assertThatCode(() -> pointService.use(pointUseDto, PointIdempotencyType.TEST)).doesNotThrowAnyException();
     }
 
     @DisplayName("잔액이 부족한 경우 차감할 수 없다.")
+    @Test
     void cannotUsePoint() {
         //given
-        PointChargeRequestDto pointUseDto = PointChargeRequestDto.builder()
+        PointRequestDto pointUseDto = PointRequestDto.builder()
                 .userNo(1)
                 .amount(100000)
                 .build();
         // when
         // then
-        assertThatCode(() -> pointService.use(pointUseDto)).isInstanceOf(IllegalArgumentException.class);
+        assertThatCode(() -> pointService.use(pointUseDto, PointIdempotencyType.TEST)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @DisplayName("주문 정보를 데이터플랫폼에 전송한다.")
+    @Test
     void sendOrderInfoToDataAnalytics() {
         // given
         Order order = Order.builder()
@@ -124,10 +128,7 @@ public class OrderServiceTest {
                 .totalOrderAmount(1500).build();
 
         // when then
-        fakeOrderEventDataSender.send(order);
+        mockMessageProducer.send(order);
     }
-
-
-
 
 }
