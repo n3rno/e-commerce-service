@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface PointMapper {
     Optional<PointBalance> selectBalanceByUserNo(int userNo);
     void insertPointHist(Point point);
+    int countIndempotencyKey(String key, int userNo);
 }

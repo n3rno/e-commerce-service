@@ -7,8 +7,9 @@ import kr.hhplus.be.server.order.domain.repository.OrderRepository;
 import kr.hhplus.be.server.order.domain.service.OrderDomainService;
 import kr.hhplus.be.server.order.domain.service.OrderIdGenerator;
 import kr.hhplus.be.server.order.infrastructure.messaging.MessageProducer;
-import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
+import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
+import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,9 +48,11 @@ public class OrderService {
         orderRepository.insertOrderGoods(OrderGoods.from(orderId, orderRequestDto.getOrderGoodsList()));
 
         // 포인트 차감
-        pointService.use(PointChargeRequestDto.builder()
+        pointService.use(PointRequestDto.builder()
                 .userNo(orderRequestDto.getUserNo())
-                .amount(validation.getTotalPrice()).build());
+                .amount(validation.getTotalPrice())
+                .orderId(orderId).build(), PointIdempotencyType.ORDER);
+
 
         // 주문 데이터 외부 전송
         messageProducer.send(order);

@@ -1,37 +1,23 @@
 package kr.hhplus.be.server.order;
 
-import kr.hhplus.be.server.goods.application.service.GoodsService;
-import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.order.application.service.OrderService;
-import kr.hhplus.be.server.order.domain.model.Order;
-import kr.hhplus.be.server.order.domain.model.OrderGoods;
 import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
-import kr.hhplus.be.server.order.domain.repository.OrderRepository;
-import kr.hhplus.be.server.order.infrastructure.messaging.MessageProducer;
 import kr.hhplus.be.server.order.infrastructure.persistence.mapper.OrderMapper;
-import kr.hhplus.be.server.point.PointServiceTest;
 import kr.hhplus.be.server.point.application.service.PointService;
-import kr.hhplus.be.server.point.domain.model.Point;
-import kr.hhplus.be.server.point.domain.model.PointBalance;
-import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
-import kr.hhplus.be.server.point.domain.model.enums.PointType;
+import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.domain.repository.PointRepository;
 import kr.hhplus.be.server.point.infrastructure.persistence.mapper.PointMapper;
 import kr.hhplus.be.server.user.application.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -60,7 +46,10 @@ public class OrderTest {
     void chargePointTest() {
         final int userNo = 2;
         final long chargePoint = 10000;
-        PointChargeRequestDto request = new PointChargeRequestDto(chargePoint, userNo);
+        PointRequestDto request = PointRequestDto.builder()
+                .amount(chargePoint)
+                .userNo(userNo)
+                .build();
         pointService.charge(request);
     }
 

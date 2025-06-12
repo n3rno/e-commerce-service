@@ -7,14 +7,14 @@ import kr.hhplus.be.server.order.domain.model.OrderGoods;
 import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
 import kr.hhplus.be.server.order.infrastructure.messaging.MessageProducer;
-import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
+import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
+import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -95,26 +95,26 @@ public class OrderServiceTest {
     @Test
     void usePoint() {
         //given
-        PointChargeRequestDto pointUseDto = PointChargeRequestDto.builder()
+        PointRequestDto pointUseDto = PointRequestDto.builder()
                         .userNo(1)
                         .amount(0)
                         .build();
         // when
         // then
-        assertThatCode(() -> pointService.use(pointUseDto)).doesNotThrowAnyException();
+        assertThatCode(() -> pointService.use(pointUseDto, PointIdempotencyType.TEST)).doesNotThrowAnyException();
     }
 
     @DisplayName("잔액이 부족한 경우 차감할 수 없다.")
     @Test
     void cannotUsePoint() {
         //given
-        PointChargeRequestDto pointUseDto = PointChargeRequestDto.builder()
+        PointRequestDto pointUseDto = PointRequestDto.builder()
                 .userNo(1)
                 .amount(100000)
                 .build();
         // when
         // then
-        assertThatCode(() -> pointService.use(pointUseDto)).isInstanceOf(IllegalArgumentException.class);
+        assertThatCode(() -> pointService.use(pointUseDto, PointIdempotencyType.TEST)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @DisplayName("주문 정보를 데이터플랫폼에 전송한다.")

@@ -24,4 +24,9 @@ public class PointRepositoryImpl implements PointRepository {
     public void insertPointHist(Point point) {
         pointMapper.insertPointHist(point);
     }
+
+    @Override
+    public int countIndempotencyKey(String key, int userNo) {
+        return pointMapper.countIndempotencyKey(key, userNo);
+    }
 }

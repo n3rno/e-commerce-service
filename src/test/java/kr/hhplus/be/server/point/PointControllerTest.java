@@ -5,7 +5,7 @@ import kr.hhplus.be.server.goods.infrastructure.persistence.mapper.GoodsMapper;
 import kr.hhplus.be.server.order.infrastructure.persistence.mapper.OrderMapper;
 import kr.hhplus.be.server.point.controller.PointController;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
-import kr.hhplus.be.server.point.domain.model.PointChargeRequestDto;
+import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
 import kr.hhplus.be.server.point.infrastructure.persistence.mapper.PointMapper;
 import kr.hhplus.be.server.user.infrastructure.persistence.mapper.UserMapper;
@@ -70,7 +70,9 @@ public class PointControllerTest {
         //given
         final int userNo = 1;
         final long chargePoint = 1000;
-        PointChargeRequestDto request = new PointChargeRequestDto(chargePoint, userNo);
+        PointRequestDto request = PointRequestDto.builder()
+                .amount(chargePoint)
+                .userNo(userNo).build();
 
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(request);

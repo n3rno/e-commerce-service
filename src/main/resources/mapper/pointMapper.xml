@@ -14,15 +14,25 @@
             order_id,
             balance,
             user_no,
-            created_at
+            created_at,
+            idempotency_key
         ) VALUES (
             #{type},
             #{amount},
             #{orderId},
             #{balance},
             #{userNo},
-            NOW()
+            NOW(),
+            #{idempotencyKey}
         )
     </insert>
+
+    <select id="countIndempotencyKey" resultType="int">
+        SELECT count(*) from point_hist
+        <where>
+            idempotency_key = #{key}
+            and user_no = #{userNo}
+        </where>
+    </select>
 
 </mapper>
