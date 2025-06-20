@@ -60,4 +60,11 @@
         </where>
     </select>
 
+    <update id="updateGoodsDecreaseStock" parameterType="int">
+        UPDATE goods
+        SET stock = stock - #{quantity}
+        WHERE no = #{goodsNo}
+          AND stock >= #{quantity}
+    </update>
+
 </mapper>
