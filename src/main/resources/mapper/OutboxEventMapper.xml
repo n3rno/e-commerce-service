@@ -1,0 +1,27 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.hhplus.be.server.order.infrastructure.persistence.mapper.OutboxEventMapper">
+
+    <!-- 상품 정보 조회 (남은 재고 포함) -->
+    <insert id="insertOutboxEvent" parameterType="kr.hhplus.be.server.order.domain.model.OutboxEvent" keyProperty="seq">
+        INSERT INTO outbox_event (
+            type,
+            payload,
+            status,
+        ) values (
+            #{type},
+            #{payload},
+            #{status}
+        )
+    </insert>
+
+    <!-- -->
+    <update id="updateOutboxEventStatus" parameterType="kr.hhplus.be.server.order.domain.model.OutboxEvent">
+        UPDATE outbox_event SET
+            status = #{status}
+        <where>
+            seq = #{seq}
+        </where>
+
+    </update>
+
+</mapper>

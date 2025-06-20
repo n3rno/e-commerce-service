@@ -1,8 +1,13 @@
 package kr.hhplus.be.server.goods;
 
+import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.controller.GoodsController;
-import kr.hhplus.be.server.goods.model.GoodsResponseDto;
-import kr.hhplus.be.server.goods.service.GoodsService;
+import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
+import kr.hhplus.be.server.goods.domain.repository.GoodsRepository;
+import kr.hhplus.be.server.goods.infrastructure.persistence.mapper.GoodsMapper;
+import kr.hhplus.be.server.order.infrastructure.persistence.mapper.OrderMapper;
+import kr.hhplus.be.server.point.infrastructure.persistence.mapper.PointMapper;
+import kr.hhplus.be.server.user.infrastructure.persistence.mapper.UserMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,21 @@ public class GoodsControllerTest {
     @MockitoBean
     private GoodsService goodsService;
 
+    @MockitoBean
+    private GoodsRepository goodsRepository;
+
+    @MockitoBean
+    private GoodsMapper goodsMapper;
+
+    @MockitoBean
+    private OrderMapper orderMapper;
+
+    @MockitoBean
+    private PointMapper pointMapper;
+
+    @MockitoBean
+    private UserMapper userMapper;
+
     @DisplayName("상품조회 api를 호출한다.")
     @Test
     void callController() throws Exception {
@@ -34,7 +54,7 @@ public class GoodsControllerTest {
         final long goodsNo = 1L;
         GoodsResponseDto mockGoods = new GoodsResponseDto(goodsNo, "커피", 3000, 50, 50);
 
-        given(goodsService.selectGoods(anyLong())).willReturn(mockGoods);
+        given(goodsService.getGoodsByGoodsNo(anyLong())).willReturn(mockGoods);
 
         // when & then
         mockMvc.perform(get("/goods/get/1"))
@@ -42,7 +62,7 @@ public class GoodsControllerTest {
                 .andExpect(jsonPath("$.no").value(goodsNo));
 
         // verify
-        verify(goodsService).selectGoods(goodsNo);
+        verify(goodsService).getGoodsByGoodsNo(goodsNo);
     }
 
 }
