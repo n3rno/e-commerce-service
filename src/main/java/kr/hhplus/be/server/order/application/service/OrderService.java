@@ -28,6 +28,7 @@ public class OrderService {
     private final OrderDomainService orderDomainService;
     private final UserService userService;
 
+    // 상품 여러종류 주문
     @Transactional
     public void order(OrderRequestDto orderRequestDto) {
 
@@ -65,5 +66,9 @@ public class OrderService {
 
         // 주문 데이터 외부 전송
         messageProducer.send(order);
+    }
+
+    // 상품 1종 바로 주문하기 TODO
+    public void orderGoodsDirect(int goodsNo, int userNo) {
     }
 }
