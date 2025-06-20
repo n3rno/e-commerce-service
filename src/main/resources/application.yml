@@ -13,6 +13,7 @@ spring:
       maximum-pool-size: 3
       connection-timeout: 10000
       max-lifetime: 60000
+      connection-init-sql: SET SESSION innodb_lock_wait_timeout = 10
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     open-in-view: false

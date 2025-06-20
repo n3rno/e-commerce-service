@@ -16,6 +16,7 @@ import kr.hhplus.be.server.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -74,7 +75,7 @@ public class OrderService {
     }
 
     // 상품 1종 바로 주문하기
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void orderGoodsDirect(int goodsNo, int userNo) {
         final int quantity = 1;
 
@@ -96,27 +97,31 @@ public class OrderService {
         Order order = Order.builder()
                 .id(orderId)
                 .userNo(userNo)
-                .couponIssueNo(null)
                 .totalOrderAmount(totalAmount).build();
 
         try {
             // 상품 재고 차감
             goodsService.decreaseStock(goodsNo, quantity);
+        } catch (IllegalAccessException e) {
+            // 재고 부족 시 중단
+            return;
+        }
 
+            // 주문 이력 생성
+            orderRepository.insertOrder(order);
+            orderRepository.insertOrderGoods(OrderGoods.from(orderId,
+                    List.of(new OrderRequestDto.OrderGoods(goodsNo, quantity))));
+
+        try {
+            // 상품 재고 차감
             // 포인트 차감
             pointService.use(PointRequestDto.builder()
                     .userNo(userNo)
                     .amount(totalAmount)
                     .orderId(orderId).build(), PointIdempotencyType.ORDER);
-
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-            // 재고/잔액 부족 시 중단
-            return;
+        } catch (IllegalArgumentException e) {
         }
 
-        // 주문 이력 생성
-        orderRepository.insertOrder(order);
-        orderRepository.insertOrderGoods(OrderGoods.from(orderId,
-                List.of(new OrderRequestDto.OrderGoods(goodsNo, quantity))));
+
     }
 }

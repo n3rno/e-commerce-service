@@ -6,3 +6,4 @@
 point 차감 시 `SELECT FOR UPDATE`으로 `비관적 락` 사용
 
 ## 테스트 결과
+<pre> <code> <code>📁 <b>/src/test/java/kr/hhplus/be/server/order/RequestTwiceOrderTest.java</b></code> </code> </pre>

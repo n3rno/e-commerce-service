@@ -3,16 +3,13 @@ package kr.hhplus.be.server.order;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.order.application.service.OrderService;
-import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,12 +17,14 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@RequiredArgsConstructor
 public class RequestTwiceOrderTest {
 
-    private final GoodsService goodsService;
-    private final OrderService orderService;
-    private final PointService pointService;
+    @Autowired
+    private GoodsService goodsService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private PointService pointService;
 
     @Test
     // 동일 유저가 두 번 결제 요청 → 잔액 음수 오류
@@ -34,6 +33,7 @@ public class RequestTwiceOrderTest {
         // 1. 동시에 요청할 스레드 수 (2 주문을 동시 요청)
         int THREAD_COUNT = 2;
         int USER_NO = 5;
+        int GOODS_NO = 5;
 
         // 2. 고정된 크기의 스레드 풀 생성 (병렬 실행을 위한 Executor)
         ExecutorService es = Executors.newFixedThreadPool(THREAD_COUNT);
@@ -46,9 +46,10 @@ public class RequestTwiceOrderTest {
             es.submit(() -> {
                 try {
                     // 상품 ID 5번, 사용자 ID 5번에 대해 주문 요청
-                    orderService.orderGoodsDirect(5, 5);
+                    orderService.orderGoodsDirect(GOODS_NO, USER_NO);
                 } catch (Exception ignored) {
                     // 에러 발생 시 테스트 실패가 아님 → 실패 주문은 무시 (예: 잔액 부족, 재고 없음 등)
+                    System.out.println(ignored.toString());
                 } finally {
                     // 스레드 하나가 끝날 때마다 카운트 감소
                     latch.countDown();
@@ -59,7 +60,7 @@ public class RequestTwiceOrderTest {
         // 5. 모든 요청이 완료될 때까지 대기 (latch가 0이 될 때까지)
         latch.await();
 
-        GoodsResponseDto goods = goodsService.getGoodsByGoodsNo(1L);
+        GoodsResponseDto goods = goodsService.getGoodsByGoodsNo(GOODS_NO);
         PointBalance balance = pointService.selectBalance(USER_NO);
         // 6. 결제 시도 후 잔액 출력
         System.out.println("최종 잔액: " + balance.getBalance());

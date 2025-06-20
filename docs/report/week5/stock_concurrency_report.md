@@ -12,3 +12,4 @@ WHERE no = #{goodsNo}
 ```
 
 ## 테스트 결과
+<pre> <code> <code>📁 <b>/src/test/java/kr/hhplus/be/server/order/StockOversellTest.java</b></code> </code> </pre>

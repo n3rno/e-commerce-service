@@ -3,9 +3,9 @@ package kr.hhplus.be.server.order;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.order.application.service.OrderService;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.concurrent.CountDownLatch;
@@ -15,11 +15,12 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@RequiredArgsConstructor
 public class StockOversellTest {
 
-    private final GoodsService goodsService;
-    private final OrderService orderService;
+    @Autowired
+    private GoodsService goodsService;
+    @Autowired
+    private OrderService orderService;
 
     @Test
     // 다수 사용자가 동시에 같은 상품을 주문 → 재고 oversell
@@ -45,6 +46,7 @@ public class StockOversellTest {
                     orderService.orderGoodsDirect(GOODS_NO, USER_NO); // 수량 1 주문
                 } catch (Exception ignored) {
                     // 에러 발생 시 테스트 실패가 아님 → 실패 주문은 무시 (예: 잔액 부족, 재고 없음 등)
+//                    ignored.printStackTrace();
                 } finally {
                     // 스레드 하나가 끝날 때마다 카운트 감소
                     latch.countDown();
