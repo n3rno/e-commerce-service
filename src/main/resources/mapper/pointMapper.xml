@@ -35,4 +35,15 @@
         </where>
     </select>
 
+    <!-- 사용자 포인트 잔액 조회 -->
+    <!--
+        상품 정보 조회 시 FOR UPDATE 락 걸기
+         → 해당 product 행에 X-Lock (배타 락) 발생
+         → 다른 트랜잭션은 이 행에 접근(읽기/쓰기)할 수 없음 → Oversell 방지
+     -->
+    <select id="findByUserIdForUpdate" resultType="Long">
+        SELECT balance FROM point_hist WHERE user_no = #{userNo} ORDER BY CREATED_AT DESC LIMIT 1
+        FOR UPDATE
+    </select>
+
 </mapper>

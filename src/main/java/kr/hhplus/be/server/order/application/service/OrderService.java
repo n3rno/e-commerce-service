@@ -84,6 +84,7 @@ public class OrderService {
         }
 
         // 상품 존재 확인
+        // TODO findByGoodsNoForUpdate 만들기
         GoodsResponseDto goods = goodsService.getGoodsByGoodsNo(goodsNo);
         if (null == goods) {
             throw new IllegalArgumentException("Not Exist Goods");

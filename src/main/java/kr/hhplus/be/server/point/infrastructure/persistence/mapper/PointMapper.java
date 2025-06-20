@@ -11,4 +11,5 @@ public interface PointMapper {
     Optional<PointBalance> selectBalanceByUserNo(int userNo);
     void insertPointHist(Point point);
     int countIndempotencyKey(String key, int userNo);
+    Optional<Long> findByUserIdForUpdate(int userNo);
 }

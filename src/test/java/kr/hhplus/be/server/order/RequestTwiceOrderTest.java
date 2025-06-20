@@ -25,8 +25,7 @@ public class RequestTwiceOrderTest {
 
     private final GoodsService goodsService;
     private final OrderService orderService;
-    @Autowired
-    private PointService pointService;
+    private final PointService pointService;
 
     @Test
     // 동일 유저가 두 번 결제 요청 → 잔액 음수 오류
@@ -42,17 +41,12 @@ public class RequestTwiceOrderTest {
         // 3. 모든 스레드 작업이 완료될 때까지 대기할 CountDownLatch
         CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
 
-        // 4. 100개의 주문 요청을 비동기로 실행
+        // 4. 2번의 주문 요청을 비동기로 실행
         for (int i = 0; i < THREAD_COUNT; i++) {
             es.submit(() -> {
                 try {
                     // 상품 ID 5번, 사용자 ID 5번에 대해 주문 요청
-                    OrderRequestDto.OrderGoods goods1 = new OrderRequestDto.OrderGoods(1, 1);
-                    OrderRequestDto request = OrderRequestDto.builder()
-                                                .userNo(USER_NO)
-                                                .orderGoodsList(List.of(goods1))
-                                                .build();
-                    orderService.order(request);
+                    orderService.orderGoodsDirect(5, 5);
                 } catch (Exception ignored) {
                     // 에러 발생 시 테스트 실패가 아님 → 실패 주문은 무시 (예: 잔액 부족, 재고 없음 등)
                 } finally {

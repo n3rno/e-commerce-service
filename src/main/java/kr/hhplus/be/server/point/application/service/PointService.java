@@ -39,12 +39,13 @@ public class PointService {
         }
 
         // 잔액 조회
-        PointBalance balance = selectBalance(request.getUserNo());
+        // point를 히스토리성으로 관리하고 있기 때문에 순서 엇갈리지 않도록, FOR UPDATE 적용
+        long balance = findByUserIdForUpdate(request.getUserNo());
 
         Point point = Point.builder()
                 .type(PointType.CHARGE)
                 .amount(request.getAmount())
-                .balance(balance.getBalance() + request.getAmount())
+                .balance(balance + request.getAmount())
                 .userNo(request.getUserNo())
                 .idempotencyKey(idempotencyKey)
         .build();
@@ -61,17 +62,18 @@ public class PointService {
         }
 
         // 잔액 조회
-        PointBalance balance = selectBalance(request.getUserNo());
-
-        // 잔액이 부족하면 차감 불가
-        if (balance.getBalance() < request.getAmount()) {
+        // 유저 포인트 잔액 조회 시 FOR UPDATE 적용
+        // → 동시에 다른 결제 트랜잭션이 이 유저의 잔액을 조회하지 못하도록 막음
+        long balance = findByUserIdForUpdate(request.getUserNo());
+        // 검증 로직: 잔액 부족한 경우 예외 발생
+        if (balance < request.getAmount()) {
             throw new IllegalArgumentException("Not Enough Balance");
         }
 
         Point point = Point.builder()
                 .type(PointType.USE)
                 .amount(request.getAmount())
-                .balance(balance.getBalance() - request.getAmount())
+                .balance(balance - request.getAmount())
                 .userNo(request.getUserNo())
                 .idempotencyKey(idempotencyKey)
                 .orderId(request.getOrderId())
@@ -79,6 +81,12 @@ public class PointService {
 
         // 포인트 차감 이력 생성
         pointRepository.insertPointHist(point);
+    }
+
+    // 포인트 차감을 위한 잔액 조회 (배타락)
+    public long findByUserIdForUpdate(int userNo) {
+        return pointRepository.findByUserIdForUpdate(userNo)
+                .orElse(0L);
     }
 
 }

@@ -29,4 +29,9 @@ public class PointRepositoryImpl implements PointRepository {
     public int countIndempotencyKey(String key, int userNo) {
         return pointMapper.countIndempotencyKey(key, userNo);
     }
+
+    @Override
+    public Optional<Long> findByUserIdForUpdate(int userNo) {
+        return pointMapper.findByUserIdForUpdate(userNo);
+    }
 }
