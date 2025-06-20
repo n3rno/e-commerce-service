@@ -6,6 +6,7 @@ import kr.hhplus.be.server.util.DateStringUtill;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Builder
 public class Point {
@@ -20,6 +21,6 @@ public class Point {
 
 
     public static String makeIndempotencyKey(PointIdempotencyType type) {
-        return type + DateStringUtill.dateToStringYyMMddHHmmss();
+        return type + UUID.randomUUID().toString();
     }
 }
