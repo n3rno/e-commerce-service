@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order.domain.model;
 
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +18,7 @@ public class OrderRequestDto {
     @AllArgsConstructor
     public static class OrderGoods {
         long goodsNo;
+        @Positive(message = "구매수량은 1보다 커야 합니다.")
         long quantity;
     }
 }

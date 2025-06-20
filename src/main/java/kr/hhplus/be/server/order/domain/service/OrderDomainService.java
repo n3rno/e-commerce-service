@@ -26,6 +26,8 @@ public class OrderDomainService {
         // 사려는 수량이 현재 남아있는 재고보다 많은지 확인
         if (!checkStock(orderRequestDto.getOrderGoodsList(), goodsStockList)) {
             return new ValidationResult(false, 0);
+            // TODO Exception 클래스 만들기
+//            상품 '%s'의 재고가 부족합니다. 요청: %d개, 가능: %d개
         }
 
         // 결제 금액 계산

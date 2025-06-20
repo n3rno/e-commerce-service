@@ -10,6 +10,9 @@
                  배타 락: https://incheol-jung.gitbook.io/docs/q-and-a/spring/feat.-tmi
                  EXCLUSIVE LOCK
                     서로 다른 트랜잭션에 대해 선점한 트랜잭션이 COMMIT 할 때까지 나머지 트랜잭션은 BLOCK 된다.
+
+                    대신에 원자적 차감(+현재 재고 컬럼 추가)를 사용해볼 것
+                    https://github.com/n3rno/e-commerce-service/pull/40#issuecomment-2969613013
                  -->
                 FOR UPDATE
                 )
