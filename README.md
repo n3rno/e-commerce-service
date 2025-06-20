@@ -6,6 +6,7 @@
 <!-- 
     point_hist 테이블 - idempotency_key 컬럼 추가
     goods 테이블 - start_stock(초기 재고값) 추가
+    point 테이블 추가 - (user_no, point, edited_at)
 -->
 
 ## Sequence Diagram

@@ -2,7 +2,7 @@ package kr.hhplus.be.server.point.application.service;
 
 import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
 import kr.hhplus.be.server.point.domain.model.enums.PointType;
-import kr.hhplus.be.server.point.domain.model.Point;
+import kr.hhplus.be.server.point.domain.model.PointHist;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
 import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.domain.repository.PointRepository;
@@ -33,16 +33,15 @@ public class PointService {
 
     public void charge(PointRequestDto request) {
         // 멱등키 확인
-        String idempotencyKey = Point.makeIndempotencyKey(PointIdempotencyType.CHARGE);
+        String idempotencyKey = PointHist.makeIndempotencyKey(PointIdempotencyType.CHARGE);
         if (pointRepository.countIndempotencyKey(idempotencyKey, request.getUserNo()) > 0) {
             throw new IllegalStateException("Already processed request");
         }
 
-        // 잔액 조회
-        // point를 히스토리성으로 관리하고 있기 때문에 순서 엇갈리지 않도록, FOR UPDATE 적용
+        // 잔액 조회 (FOR UPDATE 적용)
         long balance = findByUserIdForUpdate(request.getUserNo());
 
-        Point point = Point.builder()
+        PointHist pointHist = PointHist.builder()
                 .type(PointType.CHARGE)
                 .amount(request.getAmount())
                 .balance(balance + request.getAmount())
@@ -51,12 +50,13 @@ public class PointService {
         .build();
 
         // 포인트 충전 이력 생성
-        pointRepository.insertPointHist(point);
+        pointRepository.updatePoint(request.getUserNo(), balance + request.getAmount());
+        pointRepository.insertPointHist(pointHist);
     }
 
     public void use(PointRequestDto request, PointIdempotencyType type) {
         // 멱등키 확인
-        String idempotencyKey = Point.makeIndempotencyKey(type);
+        String idempotencyKey = PointHist.makeIndempotencyKey(type);
         if (pointRepository.countIndempotencyKey(idempotencyKey, request.getUserNo()) > 0) {
             throw new IllegalStateException("Already processed request");
         }
@@ -70,7 +70,7 @@ public class PointService {
             throw new IllegalArgumentException("Not Enough Balance");
         }
 
-        Point point = Point.builder()
+        PointHist pointHist = PointHist.builder()
                 .type(PointType.USE)
                 .amount(request.getAmount())
                 .balance(balance - request.getAmount())
@@ -80,7 +80,8 @@ public class PointService {
                 .build();
 
         // 포인트 차감 이력 생성
-        pointRepository.insertPointHist(point);
+        pointRepository.updatePoint(request.getUserNo(), balance - request.getAmount());
+        pointRepository.insertPointHist(pointHist);
     }
 
     // 포인트 차감을 위한 잔액 조회 (배타락)
