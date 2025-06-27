@@ -7,7 +7,7 @@
     </select>
 
     <!-- 포인트 충전(사용) 이력 데이터 삽입 -->
-    <insert id="insertPointHist" parameterType="kr.hhplus.be.server.point.domain.model.Point">
+    <insert id="insertPointHist" parameterType="kr.hhplus.be.server.point.domain.model.PointHist">
         INSERT INTO point_hist (
             type,
             amount,
@@ -34,5 +34,24 @@
             and user_no = #{userNo}
         </where>
     </select>
+
+    <!-- 사용자 포인트 잔액 조회 -->
+    <!--
+        포인트 조회 시 FOR UPDATE 락 걸기
+         → 해당 product 행에 X-Lock (배타 락) 발생
+         → 다른 트랜잭션은 이 행에 접근(읽기/쓰기)할 수 없음 → 음수 잔액 방지
+     -->
+    <select id="findByUserIdForUpdate" resultType="Long">
+        SELECT point FROM point WHERE user_no = #{userNo}
+        FOR UPDATE
+    </select>
+
+    <!-- 포인트 잔액 업데이트 -->
+    <update id="upsertPoint">
+        INSERT INTO point (user_no, point, edited_at)
+        VALUES (#{userNo}, #{point}, NOW())
+            ON DUPLICATE KEY UPDATE point = VALUES(point)
+
+    </update>
 
 </mapper>

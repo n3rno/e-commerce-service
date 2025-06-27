@@ -2,7 +2,7 @@ package kr.hhplus.be.server.point.application.service;
 
 import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
 import kr.hhplus.be.server.point.domain.model.enums.PointType;
-import kr.hhplus.be.server.point.domain.model.Point;
+import kr.hhplus.be.server.point.domain.model.PointHist;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
 import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.domain.repository.PointRepository;
@@ -33,52 +33,61 @@ public class PointService {
 
     public void charge(PointRequestDto request) {
         // 멱등키 확인
-        String idempotencyKey = Point.makeIndempotencyKey(PointIdempotencyType.CHARGE);
+        String idempotencyKey = PointHist.makeIndempotencyKey(PointIdempotencyType.CHARGE);
         if (pointRepository.countIndempotencyKey(idempotencyKey, request.getUserNo()) > 0) {
             throw new IllegalStateException("Already processed request");
         }
 
-        // 잔액 조회
-        PointBalance balance = selectBalance(request.getUserNo());
+        // 잔액 조회 (FOR UPDATE 적용)
+        long balance = findByUserIdForUpdate(request.getUserNo());
 
-        Point point = Point.builder()
+        PointHist pointHist = PointHist.builder()
                 .type(PointType.CHARGE)
                 .amount(request.getAmount())
-                .balance(balance.getBalance() + request.getAmount())
+                .balance(balance + request.getAmount())
                 .userNo(request.getUserNo())
                 .idempotencyKey(idempotencyKey)
         .build();
 
         // 포인트 충전 이력 생성
-        pointRepository.insertPointHist(point);
+        pointRepository.updatePoint(request.getUserNo(), balance + request.getAmount());
+        pointRepository.insertPointHist(pointHist);
     }
 
     public void use(PointRequestDto request, PointIdempotencyType type) {
         // 멱등키 확인
-        String idempotencyKey = Point.makeIndempotencyKey(type);
+        String idempotencyKey = PointHist.makeIndempotencyKey(type);
         if (pointRepository.countIndempotencyKey(idempotencyKey, request.getUserNo()) > 0) {
             throw new IllegalStateException("Already processed request");
         }
 
         // 잔액 조회
-        PointBalance balance = selectBalance(request.getUserNo());
-
-        // 잔액이 부족하면 차감 불가
-        if (balance.getBalance() < request.getAmount()) {
+        // 유저 포인트 잔액 조회 시 FOR UPDATE 적용
+        // → 동시에 다른 결제 트랜잭션이 이 유저의 잔액을 조회하지 못하도록 막음
+        long balance = findByUserIdForUpdate(request.getUserNo());
+        // 검증 로직: 잔액 부족한 경우 예외 발생
+        if (balance < request.getAmount()) {
             throw new IllegalArgumentException("Not Enough Balance");
         }
 
-        Point point = Point.builder()
+        PointHist pointHist = PointHist.builder()
                 .type(PointType.USE)
                 .amount(request.getAmount())
-                .balance(balance.getBalance() - request.getAmount())
+                .balance(balance - request.getAmount())
                 .userNo(request.getUserNo())
                 .idempotencyKey(idempotencyKey)
                 .orderId(request.getOrderId())
                 .build();
 
         // 포인트 차감 이력 생성
-        pointRepository.insertPointHist(point);
+        pointRepository.updatePoint(request.getUserNo(), balance - request.getAmount());
+        pointRepository.insertPointHist(pointHist);
+    }
+
+    // 포인트 차감을 위한 잔액 조회 (배타락)
+    public long findByUserIdForUpdate(int userNo) {
+        return pointRepository.findByUserIdForUpdate(userNo)
+                .orElse(0L);
     }
 
 }

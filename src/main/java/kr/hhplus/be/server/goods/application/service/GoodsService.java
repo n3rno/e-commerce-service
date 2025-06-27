@@ -21,4 +21,11 @@ public class GoodsService {
     public List<GoodsResponseDto> getGoodsStockInfo(List<OrderRequestDto.OrderGoods> goodsList) {
         return goodsRepository.getGoodsStockInfo(goodsList);
     }
+
+    public void decreaseStock(int goodsNo, int quantity) throws IllegalAccessException {
+        int updatedRows = goodsRepository.updateGoodsDecreaseStock(goodsNo, quantity);
+        if (updatedRows == 0) {
+            throw new IllegalAccessException("재고가 부족합니다");
+        }
+    }
 }

@@ -3,6 +3,11 @@
 
 ## [ERD](https://dbdiagram.io/d/e-commerce-68380c69c07db17e77ae5bb5)
 <img src="./docs/erd/e-commerce.svg" alt="erd">
+<!-- 
+    point_hist 테이블 - idempotency_key 컬럼 추가
+    goods 테이블 - start_stock(초기 재고값) 추가
+    point 테이블 추가 - (user_no, point, edited_at)
+-->
 
 ## Sequence Diagram
 ### Coupon

@@ -1,8 +1,7 @@
 package kr.hhplus.be.server.point;
 
-import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
-import kr.hhplus.be.server.point.domain.model.Point;
+import kr.hhplus.be.server.point.domain.model.PointHist;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
 import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
@@ -15,8 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -38,18 +35,18 @@ public class PointServiceTest {
     @DisplayName("포인트를 10000원 충전한다.")
     @Test
     void chargeTest() {
-        final int userNo = 1;
-        final long chargeAmount = 10000;
+        final int userNo = 6;
+        final long chargeAmount = 300000;
 
         // 멱등키 확인
-        String idempotencyKey = Point.makeIndempotencyKey(PointIdempotencyType.TEST);
+        String idempotencyKey = PointHist.makeIndempotencyKey(PointIdempotencyType.TEST);
         if (pointRepository.countIndempotencyKey(idempotencyKey, userNo) > 0) {
             throw new IllegalArgumentException("Already processed request");
         }
 
         PointBalance balance = pointService.selectBalance(userNo);
 
-        Point point = Point.builder()
+        PointHist pointHist = PointHist.builder()
                 .type(PointType.CHARGE)
                 .amount(chargeAmount)
                 .balance(balance.getBalance() + chargeAmount)
@@ -58,7 +55,8 @@ public class PointServiceTest {
         .build();
 
         // 포인트 충전 이력 생성
-        pointRepository.insertPointHist(point);
+        pointRepository.updatePoint(userNo, balance.getBalance() + chargeAmount);
+        pointRepository.insertPointHist(pointHist);
     }
 
     @Test

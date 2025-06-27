@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.point.infrastructure;
 
-import kr.hhplus.be.server.point.domain.model.Point;
+import kr.hhplus.be.server.point.domain.model.PointHist;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
 import kr.hhplus.be.server.point.domain.repository.PointRepository;
 import kr.hhplus.be.server.point.infrastructure.persistence.mapper.PointMapper;
@@ -21,12 +21,22 @@ public class PointRepositoryImpl implements PointRepository {
     }
 
     @Override
-    public void insertPointHist(Point point) {
+    public void insertPointHist(PointHist point) {
         pointMapper.insertPointHist(point);
     }
 
     @Override
     public int countIndempotencyKey(String key, int userNo) {
         return pointMapper.countIndempotencyKey(key, userNo);
+    }
+
+    @Override
+    public Optional<Long> findByUserIdForUpdate(int userNo) {
+        return pointMapper.findByUserIdForUpdate(userNo);
+    }
+
+    @Override
+    public void updatePoint(int userNo, long point) {
+        pointMapper.upsertPoint(userNo, point);
     }
 }

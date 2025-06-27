@@ -3,55 +3,45 @@
 
     <!-- 상품 정보 조회 (남은 재고 포함) -->
     <select id="selectGoodsByGoodsNo" parameterType="long" resultType="kr.hhplus.be.server.goods.domain.model.GoodsResponseDto">
-            WITH sold_goods as (
-                SELECT IFNULL(SUM(quantity), 0) as sold_stock FROM order_goods WHERE goods_no = #{goodsNo}
-                GROUP BY goods_no
-                <!-- TODO 동시성 처리 관련해서 더 좋은 방법이 있을지 고민해볼 것
-                 배타 락: https://incheol-jung.gitbook.io/docs/q-and-a/spring/feat.-tmi
-                 EXCLUSIVE LOCK
-                    서로 다른 트랜잭션에 대해 선점한 트랜잭션이 COMMIT 할 때까지 나머지 트랜잭션은 BLOCK 된다.
-
-                    대신에 원자적 차감(+현재 재고 컬럼 추가)를 사용해볼 것
-                    https://github.com/n3rno/e-commerce-service/pull/40#issuecomment-2969613013
-                 -->
-                FOR UPDATE
-                )
-                SELECT
-                no,
-                name,
-                price,
-                stock,
-                stock - sold_goods.sold_stock as remain_stock
-                FROM goods
-            <where>
-                no = #{goodsNo}
-            </where>
-    </select>
-    
-    <select id="selectGoodsByGoodsList" parameterType="list" resultType="kr.hhplus.be.server.goods.domain.model.GoodsResponseDto">
         WITH sold_goods AS (
-            SELECT
-                g.no,
-                IFNULL(SUM(og.quantity), 0) AS sold_stock
-            FROM goods g
-            LEFT OUTER JOIN order_goods og ON g.no = og.goods_no
-            <where>
-                g.no IN
-                <foreach collection="goodsList" item="goods" open="(" separator="," close=")">
-                    #{goods.goodsNo}
-                </foreach>
-            </where>
-            GROUP BY g.no
-            FOR UPDATE
+            SELECT goods_no, IFNULL(SUM(quantity), 0) AS sold_stock
+            FROM order_goods
+            WHERE goods_no = #{goodsNo}
+            GROUP BY goods_no
         )
         SELECT
             g.no,
             g.name,
             g.price,
             g.stock,
-            g.stock - sg.sold_stock AS remain_stock
+            g.stock - IFNULL(sg.sold_stock, 0) AS remain_stock
         FROM goods g
-        LEFT JOIN sold_goods sg ON g.no = sg.no
+        LEFT JOIN sold_goods sg ON g.no = sg.goods_no
+        <where>
+            g.no = #{goodsNo}
+        </where>
+    </select>
+    
+    <select id="selectGoodsByGoodsList" parameterType="list" resultType="kr.hhplus.be.server.goods.domain.model.GoodsResponseDto">
+        WITH sold_goods AS (
+            SELECT goods_no, IFNULL(SUM(quantity), 0) AS sold_stock
+            FROM order_goods
+            <where>
+                goods_no IN
+                <foreach collection="goodsList" item="goods" open="(" separator="," close=")">
+                    #{goods.goodsNo}
+                </foreach>
+            </where>
+            GROUP BY goods_no
+        )
+        SELECT
+            g.no,
+            g.name,
+            g.price,
+            g.stock,
+            g.stock - IFNULL(sg.sold_stock, 0) AS remain_stock
+        FROM goods g
+        LEFT JOIN sold_goods sg ON g.no = sg.goods_no
         <where>
             g.no IN
             <foreach collection="goodsList" item="goods" open="(" separator="," close=")">
@@ -60,4 +50,19 @@
         </where>
     </select>
 
+    <!-- 상품 재고 차감 -->
+    <!--
+        조건부 UPDATE 단일 쿼리
+            UPDATE 문 자체가 원자 연산이므로 다른 트랜잭션이 끼어들 수 없음.
+            영향 행 수 0 → 품절 처리. 영향 행 수 1 → 구매 성공.
+            장점: 코드 간결, DB 하나로 충분.
+            단점: 인기 상품 하나에 트래픽 집중 시 DB 핫스팟 가능.
+     -->
+    <update id="updateGoodsDecreaseStock" parameterType="int">
+        UPDATE goods
+        SET stock = stock - #{quantity}
+        WHERE no = #{goodsNo}
+          AND stock >= #{quantity}
+    </update>
+    
 </mapper>

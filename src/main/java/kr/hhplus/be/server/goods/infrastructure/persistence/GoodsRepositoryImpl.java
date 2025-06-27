@@ -23,4 +23,9 @@ public class GoodsRepositoryImpl implements GoodsRepository {
     public List<GoodsResponseDto> getGoodsStockInfo(List<OrderRequestDto.OrderGoods> goodsList) {
         return goodsMapper.selectGoodsByGoodsList(goodsList);
     }
+
+    @Override
+    public int updateGoodsDecreaseStock(int goodsNo, int quantity) {
+        return goodsMapper.updateGoodsDecreaseStock(goodsNo, quantity);
+    }
 }

@@ -10,4 +10,6 @@ public interface GoodsRepository {
     GoodsResponseDto getGoodsByGoodsNo(long goodsNo);
 
     List<GoodsResponseDto> getGoodsStockInfo(List<OrderRequestDto.OrderGoods> goodsList);
+
+    int updateGoodsDecreaseStock(int goodsNo, int quantity);
 }

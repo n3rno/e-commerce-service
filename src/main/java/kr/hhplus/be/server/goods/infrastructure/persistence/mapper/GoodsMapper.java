@@ -11,4 +11,6 @@ public interface GoodsMapper {
     GoodsResponseDto selectGoodsByGoodsNo(long goodsNo);
 
     List<GoodsResponseDto> selectGoodsByGoodsList(List<OrderRequestDto.OrderGoods> goodsList);
+
+    int updateGoodsDecreaseStock(int goodsNo, int quantity);
 }
