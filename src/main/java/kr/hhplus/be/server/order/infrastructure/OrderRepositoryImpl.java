@@ -24,4 +24,9 @@ public class OrderRepositoryImpl implements OrderRepository {
     public void insertOrderGoods(List<OrderGoods> orderGoodsList) {
         orderMapper.insertOrderGoods(orderGoodsList);
     }
+
+    @Override
+    public int countByUserId(int userNo) {
+        return orderMapper.countByUserId(userNo);
+    }
 }

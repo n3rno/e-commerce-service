@@ -12,6 +12,7 @@ import kr.hhplus.be.server.order.infrastructure.messaging.MessageProducer;
 import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
 import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
+import kr.hhplus.be.server.redis.RedisLockManager;
 import kr.hhplus.be.server.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,9 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -34,6 +37,7 @@ public class OrderService {
     private final OrderDomainService orderDomainService;
     private final UserService userService;
     private final GoodsService goodsService;
+    private final RedisLockManager redisLockManager;
 
     // 상품 여러종류 주문
     @Transactional
@@ -100,12 +104,23 @@ public class OrderService {
                 .userNo(userNo)
                 .totalOrderAmount(totalAmount).build();
 
+        String lockKey = "lock:order:user:" + userNo;
+        String lockValue = UUID.randomUUID().toString();
+
+        boolean locked = redisLockManager.tryLock(lockKey, lockValue, Duration.ofSeconds(5));
+        if (!locked) {
+            throw new IllegalStateException("다른 요청이 처리 중입니다.");
+        }
+
         try {
+            // 락이 보장된다.
             // 상품 재고 차감
             goodsService.decreaseStock(goodsNo, quantity);
         } catch (IllegalAccessException e) {
             // 재고 부족 시 중단
-            return;
+            throw new IllegalStateException("재고가 부족합니다.");
+        } finally {
+            redisLockManager.releaseLock(lockKey, lockValue);
         }
 
             // 주문 이력 생성
