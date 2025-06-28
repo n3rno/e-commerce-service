@@ -114,6 +114,13 @@ public class OrderService {
 
         try {
             // 락이 보장된다.
+
+            // 포인트 차감
+            pointService.use(PointRequestDto.builder()
+                    .userNo(userNo)
+                    .amount(totalAmount)
+                    .orderId(orderId).build(), PointIdempotencyType.ORDER);
+
             // 상품 재고 차감
             goodsService.decreaseStock(goodsNo, quantity);
         } catch (IllegalAccessException e) {
@@ -123,22 +130,9 @@ public class OrderService {
             redisLockManager.releaseLock(lockKey, lockValue);
         }
 
-            // 주문 이력 생성
-            orderRepository.insertOrder(order);
-            orderRepository.insertOrderGoods(OrderGoods.from(orderId,
-                    List.of(new OrderRequestDto.OrderGoods(goodsNo, quantity))));
-
-        try {
-            // 상품 재고 차감
-            // 포인트 차감
-            pointService.use(PointRequestDto.builder()
-                    .userNo(userNo)
-                    .amount(totalAmount)
-                    .orderId(orderId).build(), PointIdempotencyType.ORDER);
-        } catch (IllegalArgumentException e) {
-            // 롤백
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        }
-
+        // 주문 이력 생성
+        orderRepository.insertOrder(order);
+        orderRepository.insertOrderGoods(OrderGoods.from(orderId,
+                List.of(new OrderRequestDto.OrderGoods(goodsNo, quantity))));
     }
 }
