@@ -9,4 +9,6 @@ public interface OrderRepository {
 
     void insertOrder(Order order);
     void insertOrderGoods(List<OrderGoods> orderGoodsList);
+
+    int countByUserId(int userNo);
 }

@@ -3,6 +3,7 @@ package kr.hhplus.be.server.order;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.order.application.service.OrderService;
+import kr.hhplus.be.server.order.domain.repository.OrderRepository;
 import kr.hhplus.be.server.point.application.service.PointService;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
 import org.junit.jupiter.api.DisplayName;
@@ -25,6 +26,8 @@ public class RequestTwiceOrderTest {
     private OrderService orderService;
     @Autowired
     private PointService pointService;
+    @Autowired
+    private OrderRepository orderRepository;
 
     @Test
     // 동일 유저가 두 번 결제 요청 → 잔액 음수 오류
@@ -66,5 +69,30 @@ public class RequestTwiceOrderTest {
         System.out.println("최종 잔액: " + balance.getBalance());
 
         assertThat(goods.getStock()).isGreaterThanOrEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("동일 유저가 두 번 결제 요청 할 때 주문은 1회만 발생한다.")
+
+    void userOrderTwiceThenOneOrderTest() throws InterruptedException {
+        int USER_NO = 5;
+        int GOODS_NO = 5;
+
+        Runnable task = () -> {
+            try {
+                orderService.orderGoodsDirect(USER_NO, GOODS_NO);
+            } catch (Exception e) {
+                // 실패해도 무시
+            }
+        };
+
+        Thread t1 = new Thread(task);
+        Thread t2 = new Thread(task);
+
+        t1.start(); t2.start();
+        t1.join();  t2.join();
+
+        long orderCount = orderRepository.countByUserId(USER_NO);
+        assertThat(orderCount).isEqualTo(1L);
     }
 }

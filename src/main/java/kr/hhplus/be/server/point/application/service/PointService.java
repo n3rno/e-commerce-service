@@ -86,6 +86,11 @@ public class PointService {
 
     // 포인트 차감을 위한 잔액 조회 (배타락)
     public long findByUserIdForUpdate(int userNo) {
+        // 사용자 존재 여부 확인
+        if (0 == userService.checkUserCountByUserNo(userNo)) {
+            throw new IllegalArgumentException("Not Exist User");
+        }
+
         return pointRepository.findByUserIdForUpdate(userNo)
                 .orElse(0L);
     }

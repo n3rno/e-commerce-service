@@ -34,4 +34,11 @@
         </foreach>
     </insert>
 
+    <select id="countByUserId">
+        select count(*)
+        from `order`
+        where user_no = #{userNo}
+          AND created_at >= NOW() - INTERVAL 5 MINUTE
+    </select>
+
 </mapper>
