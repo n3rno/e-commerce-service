@@ -12,6 +12,7 @@ import kr.hhplus.be.server.order.infrastructure.messaging.MessageProducer;
 import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
 import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
+import kr.hhplus.be.server.ranking.service.GoodsRankingService;
 import kr.hhplus.be.server.redis.RedisLockManager;
 import kr.hhplus.be.server.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ public class OrderService {
     private final UserService userService;
     private final GoodsService goodsService;
     private final RedisLockManager redisLockManager;
+    private final GoodsRankingService goodsRankingService;
 
     // 상품 여러종류 주문
     @Transactional
@@ -134,5 +136,8 @@ public class OrderService {
         orderRepository.insertOrder(order);
         orderRepository.insertOrderGoods(OrderGoods.from(orderId,
                 List.of(new OrderRequestDto.OrderGoods(goodsNo, quantity))));
+
+        // 상품 주문 랭킹 기록
+        goodsRankingService.increaseGoodsScore(goodsNo, quantity);
     }
 }
