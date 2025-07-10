@@ -15,7 +15,7 @@ public class GoodsRankingController {
 
     private final GoodsRankingService goodsRankingService;
 
-    @PostMapping("/top10")
+    @GetMapping("/top10")
     public ResponseEntity<List<GoodsRankDto>> top10() {
         return ResponseEntity.ok(goodsRankingService.getTopRankedProducts());
     }

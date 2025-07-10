@@ -74,6 +74,8 @@ public class GoodsRankingServiceTest {
         // then
         assertThat(top10.get(0).getGoodsNo()).isEqualTo("5");
         assertThat(top10.get(1).getGoodsNo()).isEqualTo("3");
+        // 랭킹을 검증
+        assertThat(top10.get(0).getRank()).isEqualTo(1); 
     }
 
 }

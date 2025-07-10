@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,13 +36,15 @@ public class GoodsRankingService {
         if (rankedSet == null) return Collections.emptyList();
 
         List<GoodsRankDto> result = new ArrayList<>();
-        int rank = 1;
 
-        for (ZSetOperations.TypedTuple<String> tuple : rankedSet) {
-            result.add(new GoodsRankDto(rank++, tuple.getValue(), tuple.getScore().longValue()));
-        }
+        AtomicInteger rank = new AtomicInteger(1);
+        return rankedSet.stream()
+                .map(tuple -> new GoodsRankDto(
+                        rank.getAndIncrement(),
+                        tuple.getValue(),
+                        tuple.getScore().longValue()
+                )).collect(Collectors.toList());
 
-        return result;
     }
 
 
