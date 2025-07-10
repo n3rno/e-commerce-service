@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order.domain.service;
 
+import kr.hhplus.be.server.Exception.OutOfStockException;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
@@ -26,8 +27,6 @@ public class OrderDomainService {
         // 사려는 수량이 현재 남아있는 재고보다 많은지 확인
         if (!checkStock(orderRequestDto.getOrderGoodsList(), goodsStockList)) {
             return new ValidationResult(false, 0);
-            // TODO Exception 클래스 만들기
-//            상품 '%s'의 재고가 부족합니다. 요청: %d개, 가능: %d개
         }
 
         // 결제 금액 계산
@@ -48,7 +47,9 @@ public class OrderDomainService {
             // 사려는 수량이 현재 재고보다 많으면 중단
             if (goods.getRemainStock() < buyStock) {
                 isValid = false;
-                break;
+                throw new OutOfStockException(goods.getName(), buyStock);
+//                break;
+                
             }
         }
         return isValid;

@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.point.application.service;
 
+import kr.hhplus.be.server.Exception.EcommerceException;
+import kr.hhplus.be.server.Exception.ErrorCode;
 import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
 import kr.hhplus.be.server.point.domain.model.enums.PointType;
 import kr.hhplus.be.server.point.domain.model.PointHist;
@@ -21,7 +23,7 @@ public class PointService {
         
         // 사용자 존재 여부 확인
         if (0 == userService.checkUserCountByUserNo(userNo)) {
-            throw new IllegalArgumentException("Not Exist User");
+            throw new EcommerceException(ErrorCode.NOT_EXIST_USER);
         }
 
         // 이력이 없는 경우 0원 리턴
@@ -35,7 +37,7 @@ public class PointService {
         // 멱등키 확인
         String idempotencyKey = PointHist.makeIndempotencyKey(PointIdempotencyType.CHARGE);
         if (pointRepository.countIndempotencyKey(idempotencyKey, request.getUserNo()) > 0) {
-            throw new IllegalStateException("Already processed request");
+            throw new EcommerceException(ErrorCode.REQUEST_ALREADY_IN_PROGRESS);
         }
 
         // 잔액 조회 (FOR UPDATE 적용)
@@ -58,7 +60,7 @@ public class PointService {
         // 멱등키 확인
         String idempotencyKey = PointHist.makeIndempotencyKey(type);
         if (pointRepository.countIndempotencyKey(idempotencyKey, request.getUserNo()) > 0) {
-            throw new IllegalStateException("Already processed request");
+            throw new EcommerceException(ErrorCode.REQUEST_ALREADY_IN_PROGRESS);
         }
 
         // 잔액 조회
@@ -67,7 +69,7 @@ public class PointService {
         long balance = findByUserIdForUpdate(request.getUserNo());
         // 검증 로직: 잔액 부족한 경우 예외 발생
         if (balance < request.getAmount()) {
-            throw new IllegalArgumentException("Not Enough Balance");
+            throw new EcommerceException(ErrorCode.NOT_ENOUGH_BALANCE);
         }
 
         PointHist pointHist = PointHist.builder()
@@ -88,7 +90,7 @@ public class PointService {
     public long findByUserIdForUpdate(int userNo) {
         // 사용자 존재 여부 확인
         if (0 == userService.checkUserCountByUserNo(userNo)) {
-            throw new IllegalArgumentException("Not Exist User");
+            throw new EcommerceException(ErrorCode.NOT_EXIST_USER);
         }
 
         return pointRepository.findByUserIdForUpdate(userNo)
