@@ -17,8 +17,8 @@ public class OrderRequestDto {
     @Getter
     @AllArgsConstructor
     public static class OrderGoods {
-        long goodsNo;
+        int goodsNo;
         @Positive(message = "구매수량은 1보다 커야 합니다.")
-        long quantity;
+        int quantity;
     }
 }

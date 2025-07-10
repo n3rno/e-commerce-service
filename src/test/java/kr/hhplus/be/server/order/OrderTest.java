@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.order;
 
 import kr.hhplus.be.server.order.application.service.OrderService;
+import kr.hhplus.be.server.order.domain.model.OrderCompletedEvent;
 import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
 import kr.hhplus.be.server.order.infrastructure.persistence.mapper.OrderMapper;
 import kr.hhplus.be.server.point.application.service.PointService;
@@ -14,10 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -40,6 +45,9 @@ public class OrderTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
     
     @DisplayName("포인트 충전")
     @BeforeEach
@@ -64,6 +72,9 @@ public class OrderTest {
         OrderRequestDto requestDto = new OrderRequestDto(userNo, orderGoodsList);
 
         orderService.order(requestDto);
+        
+        // 이벤트 발행 여부 테스트
+        verify(applicationEventPublisher).publishEvent(any(OrderCompletedEvent.class));
     }
 
 }

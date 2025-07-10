@@ -2,6 +2,7 @@ package kr.hhplus.be.server.order.application.service;
 
 import kr.hhplus.be.server.Exception.EcommerceException;
 import kr.hhplus.be.server.Exception.ErrorCode;
+import kr.hhplus.be.server.Exception.OutOfStockException;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.order.domain.model.Order;
@@ -106,10 +107,9 @@ public class OrderService {
             orderRepository.insertOrder(order);
             orderRepository.insertOrderGoods(OrderGoods.from(orderId, orderRequestDto.getOrderGoodsList()));
 
-
-
-
         // 주문 데이터 외부 전송
+//        messageProducer.send(order);
+        applicationEventPublisher.publishEvent(new OrderCompletedEvent(orderId, orderRequestDto.getUserNo(), validation.getTotalPrice()));
     }
 
     // 상품 1종 바로 주문하기
@@ -171,5 +171,7 @@ public class OrderService {
 
         // 상품 주문 랭킹 기록
         goodsRankingService.increaseGoodsScore(goodsNo, quantity);
+
+        applicationEventPublisher.publishEvent(new OrderCompletedEvent(orderId, userNo, totalAmount));
     }
 }
