@@ -12,11 +12,11 @@ import kr.hhplus.be.server.user.application.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,16 +37,16 @@ public class OrderTest {
     @Autowired
     private PointRepository pointRepository;
 
-    @Mock
+    @MockitoBean
     private PointMapper pointMapper;
 
-    @Mock
+    @MockitoBean
     private OrderMapper orderMapper;
 
-    @Mock
+    @MockitoBean
     private UserService userService;
 
-    @Mock
+    @MockitoBean
     private ApplicationEventPublisher applicationEventPublisher;
     
     @DisplayName("포인트 충전")

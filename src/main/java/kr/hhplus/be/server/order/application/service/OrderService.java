@@ -93,19 +93,18 @@ public class OrderService {
             orderRequestDto.getOrderGoodsList().forEach(goods -> {
                 // 상품 재고 차감
                 goodsService.decreaseStock(goods.getGoodsNo(), goods.getQuantity());
-
             });
-
-        } catch (EcommerceException e) {
-            // 재고 부족 시 중단
-            throw new EcommerceException(ErrorCode.LACK_OF_STOCK);
-        } finally {
-            redisLockManager.releaseLock(lockKey, lockValue);
-        }
 
             // 주문 이력 생성
             orderRepository.insertOrder(order);
             orderRepository.insertOrderGoods(OrderGoods.from(orderId, orderRequestDto.getOrderGoodsList()));
+
+        } catch (EcommerceException e) {
+            // 재고 부족 등 에러 발생 시 중단
+            throw new EcommerceException(ErrorCode.LACK_OF_STOCK);
+        } finally {
+            redisLockManager.releaseLock(lockKey, lockValue);
+        }
 
         // 주문 데이터 외부 전송
 //        messageProducer.send(order);
