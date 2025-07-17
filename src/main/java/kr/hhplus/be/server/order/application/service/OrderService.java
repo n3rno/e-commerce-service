@@ -5,6 +5,7 @@ import kr.hhplus.be.server.Exception.ErrorCode;
 import kr.hhplus.be.server.Exception.OutOfStockException;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
+import kr.hhplus.be.server.kafka.service.KafkaProducerService;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderCompletedEvent;
 import kr.hhplus.be.server.order.domain.model.OrderGoods;
@@ -46,6 +47,7 @@ public class OrderService {
     private final RedisLockManager redisLockManager;
     private final GoodsRankingService goodsRankingService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final KafkaProducerService kafkaProducerService;
 
     // 상품 여러종류 주문
     @Transactional
@@ -106,9 +108,13 @@ public class OrderService {
             redisLockManager.releaseLock(lockKey, lockValue);
         }
 
-        // 주문 데이터 외부 전송
+        OrderCompletedEvent orderCompletedEvent = new OrderCompletedEvent(orderId, orderRequestDto.getUserNo(), validation.getTotalPrice());
+        /** 주문 데이터 외부 전송 */
 //        messageProducer.send(order);
-        applicationEventPublisher.publishEvent(new OrderCompletedEvent(orderId, orderRequestDto.getUserNo(), validation.getTotalPrice()));
+        // 이벤트 발행
+//        applicationEventPublisher.publishEvent(orderCompletedEvent);
+        // kafka 메시지 발행
+        kafkaProducerService.send(orderCompletedEvent);
     }
 
     // 상품 1종 바로 주문하기
