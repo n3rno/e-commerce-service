@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order;
 
+import kr.hhplus.be.server.Exception.EcommerceException;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.order.domain.model.Order;
@@ -114,7 +115,7 @@ public class OrderServiceTest {
                 .build();
         // when
         // then
-        assertThatCode(() -> pointService.use(pointUseDto, PointIdempotencyType.TEST)).isInstanceOf(IllegalArgumentException.class);
+        assertThatCode(() -> pointService.use(pointUseDto, PointIdempotencyType.TEST)).isInstanceOf(EcommerceException.class);
     }
 
     @DisplayName("주문 정보를 데이터플랫폼에 전송한다.")

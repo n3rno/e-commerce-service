@@ -1,8 +1,12 @@
 package kr.hhplus.be.server.order.application.service;
 
+import kr.hhplus.be.server.Exception.EcommerceException;
+import kr.hhplus.be.server.Exception.ErrorCode;
+import kr.hhplus.be.server.Exception.OutOfStockException;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.order.domain.model.Order;
+import kr.hhplus.be.server.order.domain.model.OrderCompletedEvent;
 import kr.hhplus.be.server.order.domain.model.OrderGoods;
 import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
 import kr.hhplus.be.server.order.domain.repository.OrderRepository;
@@ -17,6 +21,7 @@ import kr.hhplus.be.server.redis.RedisLockManager;
 import kr.hhplus.be.server.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +45,7 @@ public class OrderService {
     private final GoodsService goodsService;
     private final RedisLockManager redisLockManager;
     private final GoodsRankingService goodsRankingService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     // 상품 여러종류 주문
     @Transactional
@@ -47,14 +53,14 @@ public class OrderService {
 
         // 사용자 존재 여부 확인
         if (0 == userService.checkUserCountByUserNo(orderRequestDto.getUserNo())) {
-            throw new IllegalArgumentException("Not Exist User");
+            throw new EcommerceException(ErrorCode.NOT_EXIST_USER);
         }
 
         OrderDomainService.ValidationResult validation = orderDomainService.validate(orderRequestDto);
 
         // 유효성 체크
         if (!validation.isValid()) {
-            throw new IllegalArgumentException("Cannot order");
+            throw new EcommerceException(ErrorCode.IMPOSSIBLE_ORDER);
         }
 
         // 주문번호 생성
@@ -66,19 +72,43 @@ public class OrderService {
                 .couponIssueNo(null) // TODO 쿠폰 할인
                 .totalOrderAmount(validation.getTotalPrice()).build();
 
-        // 주문 이력 생성
-        orderRepository.insertOrder(order);
-        orderRepository.insertOrderGoods(OrderGoods.from(orderId, orderRequestDto.getOrderGoodsList()));
+        String lockKey = "lock:order:user:" + orderRequestDto.getUserNo();
+        String lockValue = UUID.randomUUID().toString();
 
-        // 포인트 차감
-        pointService.use(PointRequestDto.builder()
-                .userNo(orderRequestDto.getUserNo())
-                .amount(validation.getTotalPrice())
-                .orderId(orderId).build(), PointIdempotencyType.ORDER);
+        boolean locked = redisLockManager.tryLock(lockKey, lockValue, Duration.ofSeconds(5));
+        if (!locked) {
+            // 다른 요청 처리 중
+            throw new EcommerceException(ErrorCode.REQUEST_LOCKED);
+        }
 
+        try {
+            // 락이 보장된다
+
+            // 포인트 차감
+            pointService.use(PointRequestDto.builder()
+                    .userNo(orderRequestDto.getUserNo())
+                    .amount(validation.getTotalPrice())
+                    .orderId(orderId).build(), PointIdempotencyType.ORDER);
+
+            orderRequestDto.getOrderGoodsList().forEach(goods -> {
+                // 상품 재고 차감
+                goodsService.decreaseStock(goods.getGoodsNo(), goods.getQuantity());
+            });
+
+            // 주문 이력 생성
+            orderRepository.insertOrder(order);
+            orderRepository.insertOrderGoods(OrderGoods.from(orderId, orderRequestDto.getOrderGoodsList()));
+
+        } catch (EcommerceException e) {
+            // 재고 부족 등 에러 발생 시 중단
+            throw new EcommerceException(ErrorCode.LACK_OF_STOCK);
+        } finally {
+            redisLockManager.releaseLock(lockKey, lockValue);
+        }
 
         // 주문 데이터 외부 전송
-        messageProducer.send(order);
+//        messageProducer.send(order);
+        applicationEventPublisher.publishEvent(new OrderCompletedEvent(orderId, orderRequestDto.getUserNo(), validation.getTotalPrice()));
     }
 
     // 상품 1종 바로 주문하기
@@ -88,14 +118,14 @@ public class OrderService {
 
         // 사용자 존재 여부 확인
         if (0 == userService.checkUserCountByUserNo(userNo)) {
-            throw new IllegalArgumentException("Not Exist User");
+            throw new EcommerceException(ErrorCode.NOT_EXIST_USER);
         }
 
         // 상품 존재 확인
         // TODO findByGoodsNoForUpdate 만들기
         GoodsResponseDto goods = goodsService.getGoodsByGoodsNo(goodsNo);
         if (null == goods) {
-            throw new IllegalArgumentException("Not Exist Goods");
+            throw new EcommerceException(ErrorCode.NOT_EXIST_GOODS);
         }
         long totalAmount = quantity * goods.getPrice();
 
@@ -111,7 +141,8 @@ public class OrderService {
 
         boolean locked = redisLockManager.tryLock(lockKey, lockValue, Duration.ofSeconds(5));
         if (!locked) {
-            throw new IllegalStateException("다른 요청이 처리 중입니다.");
+            // 다른 요청 처리 중
+            throw new EcommerceException(ErrorCode.REQUEST_LOCKED);
         }
 
         try {
@@ -125,9 +156,9 @@ public class OrderService {
 
             // 상품 재고 차감
             goodsService.decreaseStock(goodsNo, quantity);
-        } catch (IllegalAccessException e) {
+        } catch (EcommerceException e) {
             // 재고 부족 시 중단
-            throw new IllegalStateException("재고가 부족합니다.");
+            throw new EcommerceException(ErrorCode.LACK_OF_STOCK);
         } finally {
             redisLockManager.releaseLock(lockKey, lockValue);
         }
@@ -139,5 +170,7 @@ public class OrderService {
 
         // 상품 주문 랭킹 기록
         goodsRankingService.increaseGoodsScore(goodsNo, quantity);
+
+        applicationEventPublisher.publishEvent(new OrderCompletedEvent(orderId, userNo, totalAmount));
     }
 }

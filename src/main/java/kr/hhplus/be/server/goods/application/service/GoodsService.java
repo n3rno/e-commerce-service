@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.goods.application.service;
 
+import kr.hhplus.be.server.Exception.EcommerceException;
+import kr.hhplus.be.server.Exception.ErrorCode;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
 import kr.hhplus.be.server.goods.domain.repository.GoodsRepository;
 import kr.hhplus.be.server.order.domain.model.OrderRequestDto;
@@ -22,10 +24,10 @@ public class GoodsService {
         return goodsRepository.getGoodsStockInfo(goodsList);
     }
 
-    public void decreaseStock(int goodsNo, int quantity) throws IllegalAccessException {
+    public void decreaseStock(int goodsNo, int quantity) {
         int updatedRows = goodsRepository.updateGoodsDecreaseStock(goodsNo, quantity);
         if (updatedRows == 0) {
-            throw new IllegalAccessException("재고가 부족합니다");
+            throw new EcommerceException(ErrorCode.LACK_OF_STOCK);
         }
     }
 }

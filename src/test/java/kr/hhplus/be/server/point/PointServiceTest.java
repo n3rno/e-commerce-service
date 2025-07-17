@@ -1,5 +1,7 @@
 package kr.hhplus.be.server.point;
 
+import kr.hhplus.be.server.Exception.EcommerceException;
+import kr.hhplus.be.server.Exception.ErrorCode;
 import kr.hhplus.be.server.point.application.service.PointService;
 import kr.hhplus.be.server.point.domain.model.PointHist;
 import kr.hhplus.be.server.point.domain.model.PointBalance;
@@ -11,9 +13,9 @@ import kr.hhplus.be.server.point.infrastructure.persistence.mapper.PointMapper;
 import kr.hhplus.be.server.user.application.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -26,10 +28,10 @@ public class PointServiceTest {
     @Autowired
     private PointRepository pointRepository;
 
-    @Mock
+    @MockitoBean
     private PointMapper pointMapper;
 
-    @Mock
+    @MockitoBean
     private UserService userService;
 
     @DisplayName("포인트를 10000원 충전한다.")
@@ -41,7 +43,7 @@ public class PointServiceTest {
         // 멱등키 확인
         String idempotencyKey = PointHist.makeIndempotencyKey(PointIdempotencyType.TEST);
         if (pointRepository.countIndempotencyKey(idempotencyKey, userNo) > 0) {
-            throw new IllegalArgumentException("Already processed request");
+            throw new EcommerceException(ErrorCode.REQUEST_ALREADY_IN_PROGRESS);
         }
 
         PointBalance balance = pointService.selectBalance(userNo);
@@ -74,7 +76,7 @@ public class PointServiceTest {
 
         // then - 중복 요청 시 예외 발생
         assertThatThrownBy(() -> pointService.use(request, PointIdempotencyType.TEST))
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(EcommerceException.class)
                 .hasMessage("Already processed request");
     }
 
