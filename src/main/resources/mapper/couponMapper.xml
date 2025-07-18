@@ -1,0 +1,39 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.hhplus.be.server.coupon.infrastructure.persistence.mapper.CouponMapper">
+
+    <insert id="insertCouponIssue" parameterType="kr.hhplus.be.server.coupon.domain.model.CouponIssue">
+        INSERT INTO coupon_issue (coupon_id, user_no, use_yn, created_at)
+        VALUES (#{couponId}, #{userNo}, #{useYn}, NOW())
+    </insert>
+
+    <select id="selectCouponAndIssuable"
+            parameterType="kr.hhplus.be.server.coupon.domain.model.CouponIssueRequestDto"
+            resultType="kr.hhplus.be.server.coupon.domain.model.CouponIssue">
+        SELECT
+            c.id,
+            i.user_no,
+            IFNULL(i.use_yn, 'N')
+        FROM coupon c
+        LEFT OUTER JOIN coupon_issue i ON c.id = i.coupon_id and i.user_no = #{userNo}
+        WHERE c.id = #{couponId}
+    </select>
+
+
+    <select id="selectCouponInfoById" resultType="kr.hhplus.be.server.coupon.domain.model.Coupon">
+        SELECT  id, discount_price, max_quantity, now_quantity, minimum_order_amount
+        FROM coupon
+        WHERE id = #{couponId}
+    </select>
+
+    <select id="selectAllByCouponId" resultType="kr.hhplus.be.server.coupon.domain.model.CouponIssue">
+        SELECT no, coupon_id, user_no, use_yn, created_yn
+        FROM coupon_issue
+        WHERE coupon_id = #{couponId}
+    </select>
+
+    <insert id="insertCoupon" parameterType="kr.hhplus.be.server.coupon.domain.model.Coupon">
+        INSERT INTO coupon (id, discount_price, max_quantity, now_quantity, minimum_order_amount, created_at)
+        VALUES(#{id}, #{discountPrice}, #{maxQuantity}, #{nowQuantity}, #{minimumOrderAmount}, NOW())
+    </insert>
+
+</mapper>
