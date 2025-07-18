@@ -1,11 +1,9 @@
-package kr.hhplus.be.server.order.application.service;
+package kr.hhplus.be.server.order.application.service.event;
 
 import kr.hhplus.be.server.Exception.EcommerceException;
 import kr.hhplus.be.server.Exception.ErrorCode;
-import kr.hhplus.be.server.Exception.OutOfStockException;
 import kr.hhplus.be.server.goods.application.service.GoodsService;
 import kr.hhplus.be.server.goods.domain.model.GoodsResponseDto;
-import kr.hhplus.be.server.kafka.service.KafkaProducerService;
 import kr.hhplus.be.server.order.domain.model.Order;
 import kr.hhplus.be.server.order.domain.model.OrderCompletedEvent;
 import kr.hhplus.be.server.order.domain.model.OrderGoods;
@@ -14,8 +12,8 @@ import kr.hhplus.be.server.order.domain.repository.OrderRepository;
 import kr.hhplus.be.server.order.domain.service.OrderDomainService;
 import kr.hhplus.be.server.order.domain.service.OrderIdGenerator;
 import kr.hhplus.be.server.order.infrastructure.messaging.MessageProducer;
-import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.application.service.PointService;
+import kr.hhplus.be.server.point.domain.model.PointRequestDto;
 import kr.hhplus.be.server.point.domain.model.enums.PointIdempotencyType;
 import kr.hhplus.be.server.ranking.service.GoodsRankingService;
 import kr.hhplus.be.server.redis.RedisLockManager;
@@ -26,7 +24,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.time.Duration;
 import java.util.List;
@@ -47,7 +44,6 @@ public class OrderService {
     private final RedisLockManager redisLockManager;
     private final GoodsRankingService goodsRankingService;
     private final ApplicationEventPublisher applicationEventPublisher;
-    private final KafkaProducerService kafkaProducerService;
 
     // 상품 여러종류 주문
     @Transactional
@@ -110,8 +106,9 @@ public class OrderService {
 
         OrderCompletedEvent orderCompletedEvent = new OrderCompletedEvent(orderId, orderRequestDto.getUserNo(), validation.getTotalPrice());
         /** 주문 데이터 외부 전송 */
-        // kafka 메시지 발행
-        kafkaProducerService.send(orderCompletedEvent);
+//        messageProducer.send(order);
+        // 이벤트 발행
+        applicationEventPublisher.publishEvent(orderCompletedEvent);
     }
 
     // 상품 1종 바로 주문하기
