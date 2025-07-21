@@ -43,33 +43,35 @@ public class CouponIssueService {
             return false;
         }
 
-        // 최대 수량 캐시 초기화
-        if (Boolean.FALSE.equals(redisTemplate.hasKey(countKey))) {
-            Coupon coupon = couponRepository.findById(requestDto.getCouponId())
-                    .orElseThrow(() -> new EcommerceException(ErrorCode.NOT_EXIST_COUPON));
-            redisTemplate.opsForValue().set(countKey, "0");
-            redisTemplate.expire(countKey, Duration.ofHours(1));
-        }
+        /**
+         *  setIfAbsent
+         *  key가 존재하지 않는 경우(락을 획득하지 않은 경우) key에 value를 설정한다.
+         *
+         *  여러 사용자가 동시에 호출하는 경우 동시에 초기화되어 다시 0이 될 수 있음.
+         */
+        redisTemplate.opsForValue().setIfAbsent(countKey, "0", Duration.ofHours(1));
 
         // 수량 증가 후 최대 수량 초과 확인
-        Long currentCount = redisTemplate.opsForValue().increment(countKey);
         int maxCount = couponRepository.findById(requestDto.getCouponId())
                 .map(Coupon::getMaxQuantity)
                 .orElseThrow(() -> new EcommerceException(ErrorCode.NOT_ENOUGH_COUPON));
+        Long currentCount = redisTemplate.opsForValue().increment(countKey);
 
-        if (currentCount > maxCount) {
-            return false;// 수량 초과
+        if (currentCount < maxCount) {
+
+            // 발급 처리
+            redisTemplate.opsForSet().add(userSetKey, String.valueOf(requestDto.getUserNo()));
+            // 쿠폰 발급
+            couponIssueRepository.save(CouponIssue.builder()
+                    .couponId(requestDto.getCouponId())
+                    .userNo(requestDto.getUserNo())
+                    .useYn("N").build());
+            return true;
+        } else {
+            return false;
         }
 
-        // 발급 처리
-        redisTemplate.opsForSet().add(userSetKey, String.valueOf(requestDto.getUserNo()));
-        // 쿠폰 발급
-        couponIssueRepository.save(CouponIssue.builder()
-                .couponId(requestDto.getCouponId())
-                .userNo(requestDto.getUserNo())
-                .useYn("N").build());
 
-        return true;
     }
 
     public boolean validateCouponIssueRequest(CouponIssueRequestDto requestDto) {
