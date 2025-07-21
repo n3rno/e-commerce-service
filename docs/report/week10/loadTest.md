@@ -20,3 +20,13 @@
 ```
 jmeter -n -t coupon_HTTP_Request.jmx -l results.jtl -e -o ./report
 ```
+
+## 실행 결과
+### Summary
+<img src="img/summary.png">
+
+### Time vs Thread.png
+<img src="img/time_vs_thread.png">
+
+### Response Time Distribution
+<img src="img/response-time-distribution.png">
