@@ -57,6 +57,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
+	// kafka
+	implementation("org.springframework.kafka:spring-kafka")
+
 }
 
 tasks.withType<Test> {

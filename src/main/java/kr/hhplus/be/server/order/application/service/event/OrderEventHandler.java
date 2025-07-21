@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.order.application.service;
+package kr.hhplus.be.server.order.application.service.event;
 
 import kr.hhplus.be.server.order.domain.model.OrderCompletedEvent;
 import org.springframework.retry.annotation.Backoff;
