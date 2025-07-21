@@ -1,14 +1,14 @@
 package kr.hhplus.be.server.coupon.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
+@Setter
 public class CouponIssue {
 
     	private int no;

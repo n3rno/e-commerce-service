@@ -14,7 +14,7 @@ public class CouponController {
     private final CouponIssueService couponIssueService;
 
     @PostMapping("/issue")
-    public ResponseEntity<Boolean> issueCoupon(CouponIssueRequestDto requestDto) {
+    public ResponseEntity<Boolean> issueCoupon(@RequestBody CouponIssueRequestDto requestDto) {
         Boolean success = couponIssueService.issueCoupon(requestDto);
         return ResponseEntity.ok(success);
     }

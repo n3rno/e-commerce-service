@@ -31,7 +31,7 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
     consumer:
-      group-id: consumer-group-a
+      group-id: order-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -43,6 +43,15 @@ mybatis:
   type-aliases-package: kr.hhplus.be.server.*.model
   configuration:
     map-underscore-to-camel-case: true
+
+logging:
+  level:
+    root: INFO
+    org.mybatis: DEBUG
+    org.mybatis.spring: DEBUG
+    org.apache.ibatis: DEBUG
+    jdbc.sqlonly: DEBUG
+    com.zaxxer.hikari: DEBUG
 
 ---
 spring.config.activate.on-profile: local, test
