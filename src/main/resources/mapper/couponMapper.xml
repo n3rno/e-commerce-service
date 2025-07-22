@@ -10,19 +10,19 @@
             parameterType="kr.hhplus.be.server.coupon.domain.model.CouponIssueRequestDto"
             resultType="kr.hhplus.be.server.coupon.domain.model.CouponIssue">
         SELECT
-            c.id,
+            c.`id` as couponId,
             i.user_no,
-            IFNULL(i.use_yn, 'N')
+            IFNULL(i.use_yn, 'N') AS useYn
         FROM coupon c
-        LEFT OUTER JOIN coupon_issue i ON c.id = i.coupon_id and i.user_no = #{userNo}
-        WHERE c.id = #{couponId}
+        LEFT OUTER JOIN coupon_issue i ON c.`id` = i.coupon_id and i.user_no = #{userNo}
+        WHERE c.`id` = #{couponId}
     </select>
 
 
     <select id="selectCouponInfoById" resultType="kr.hhplus.be.server.coupon.domain.model.Coupon">
-        SELECT  id, discount_price, max_quantity, now_quantity, minimum_order_amount
+        SELECT  `id`, discount_price, max_quantity, now_quantity, minimum_order_amount
         FROM coupon
-        WHERE id = #{couponId}
+        WHERE `id` = #{couponId}
     </select>
 
     <select id="selectAllByCouponId" resultType="kr.hhplus.be.server.coupon.domain.model.CouponIssue">
@@ -32,7 +32,7 @@
     </select>
 
     <insert id="insertCoupon" parameterType="kr.hhplus.be.server.coupon.domain.model.Coupon">
-        INSERT INTO coupon (id, discount_price, max_quantity, now_quantity, minimum_order_amount, created_at)
+        INSERT INTO coupon (`id`, discount_price, max_quantity, now_quantity, minimum_order_amount, created_at)
         VALUES(#{id}, #{discountPrice}, #{maxQuantity}, #{nowQuantity}, #{minimumOrderAmount}, NOW())
     </insert>
 

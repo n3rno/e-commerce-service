@@ -10,6 +10,7 @@ import kr.hhplus.be.server.coupon.domain.repository.CouponRepository;
 import kr.hhplus.be.server.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +33,11 @@ public class CouponIssueService {
         String countKey = ISSUE_COUNT_KEY_PREFIX + requestDto.getCouponId();
         String userSetKey = USER_SET_KEY_PREFIX + requestDto.getCouponId();
 
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+
         // 이미 발급된 사용자 방지 (Redis Set)
-        Boolean alreadyIssued = redisTemplate.opsForSet().isMember(userSetKey, requestDto.getUserNo());
+        Boolean alreadyIssued = redisTemplate.opsForSet().isMember(userSetKey, String.valueOf(requestDto.getUserNo()));
         if (Boolean.TRUE.equals(alreadyIssued)) {
             return false; // 이미 발급받음
         }
@@ -57,7 +61,7 @@ public class CouponIssueService {
                 .orElseThrow(() -> new EcommerceException(ErrorCode.NOT_ENOUGH_COUPON));
         Long currentCount = redisTemplate.opsForValue().increment(countKey);
 
-        if (currentCount < maxCount) {
+        if (currentCount <= maxCount) {
 
             // 발급 처리
             redisTemplate.opsForSet().add(userSetKey, String.valueOf(requestDto.getUserNo()));
@@ -70,11 +74,10 @@ public class CouponIssueService {
         } else {
             return false;
         }
-
-
     }
 
     public boolean validateCouponIssueRequest(CouponIssueRequestDto requestDto) {
+
         // 존재하는 회원인지 확인
         if (0 == userService.checkUserCountByUserNo(requestDto.getUserNo())) {
             throw new EcommerceException(ErrorCode.NOT_EXIST_USER);
